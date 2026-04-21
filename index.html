@@ -54,7 +54,7 @@
   /* ── Hero backdrop ── */
   .hero-backdrop-container {
     position: absolute; top: 0; left: 0;
-    width: 100%; height: 100vh; z-index: 0; overflow: hidden;
+    width: 100%; height: 100dvh; z-index: 0; overflow: hidden;
   }
   .hero-backdrop-img {
     width: 100%; height: 100%;
@@ -203,10 +203,13 @@
 
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  html, body { overscroll-behavior: none; }
+  html, body { overscroll-behavior: none; height: 100dvh; }
+
+  /* ── Slider — prevent page scroll during swipe ── */
+  #grab-slider, #slider-thumb { touch-action: none; }
 </style>
 </head>
-<body class="animated-bg text-on-background font-body h-screen w-full overflow-hidden flex flex-col relative">
+<body class="animated-bg text-on-background font-body w-full overflow-hidden flex flex-col relative" style="height:100dvh;">
 
 <!-- ── Code-already-used popup ── -->
 <div id="reuse-popup" class="hidden fixed inset-0 z-[200] flex items-center justify-center px-6"
@@ -711,6 +714,7 @@
     }
     function onMove(e) {
       if (!dragging) return;
+      if (e.cancelable) e.preventDefault();
       const x   = e.touches ? e.touches[0].clientX : e.clientX;
       const max = getMax();
       thumbLeft = Math.max(0, Math.min(x - startX, max));
@@ -730,9 +734,9 @@
     }
 
     thumb.addEventListener('mousedown',  onStart);
-    thumb.addEventListener('touchstart', onStart, { passive: true });
+    thumb.addEventListener('touchstart', onStart, { passive: false });
     window.addEventListener('mousemove', onMove);
-    window.addEventListener('touchmove', onMove, { passive: true });
+    window.addEventListener('touchmove', onMove, { passive: false });
     window.addEventListener('mouseup',   onEnd);
     window.addEventListener('touchend',  onEnd);
   })();
