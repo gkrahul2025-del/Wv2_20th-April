@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Shrinkray Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a0a; --card: #161616; --card2: #1e1e1e; --border: #272727;
+  --muted: #555; --label: #777; --text: #e4e4e4; --text2: #aaa;
+  --lime: #c5fe00; --red: #ff5c3a; --amber: #f5a623; --green: #4ade80; --blue: #60a5fa;
+}
+body { background: var(--bg); color: var(--text); font-family: Inter, sans-serif; font-size: 14px; }
+.page { max-width: 860px; margin: 0 auto; padding: 28px 20px 72px; }
+
+/* ── Auth ── */
+.auth-wrap { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:32px; }
+.auth-wrap h2 { font-size:15px; font-weight:800; }
+.auth-wrap p  { font-size:12px; color:var(--label); }
+.auth-row { display:flex; gap:8px; }
+.auth-input { background:var(--card); border:1px solid var(--border); color:var(--text); font-family:Inter; font-size:14px; padding:9px 14px; border-radius:8px; outline:none; width:180px; }
+.auth-input:focus { border-color:var(--lime); }
+.auth-btn { background:var(--lime); color:#000; font-family:Inter; font-weight:700; font-size:13px; padding:9px 16px; border:none; border-radius:8px; cursor:pointer; }
+.auth-err { font-size:11px; color:var(--red); display:none; }
+
+/* ── Header ── */
+.header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:18px; }
+.header h1 { font-size:16px; font-weight:900; letter-spacing:-0.3px; }
+.header h1 span { color:var(--lime); }
+.hdr-right { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.updated { font-size:11px; color:var(--label); }
+
+/* ── Buttons ── */
+.btn { background:var(--card); border:1px solid var(--border); color:var(--label); font-size:11px; font-family:Inter; font-weight:600; letter-spacing:0.3px; padding:6px 13px; border-radius:99px; cursor:pointer; transition:all .15s; white-space:nowrap; }
+.btn:hover, .btn.active { border-color:var(--lime); color:var(--lime); background:rgba(197,254,0,.06); }
+
+/* ── Period pills ── */
+.period-row { display:flex; gap:6px; margin-bottom:20px; }
+
+/* ── Metrics ── */
+.metrics { display:grid; grid-template-columns:repeat(6,1fr); gap:10px; margin-bottom:28px; }
+@media(max-width:680px){ .metrics { grid-template-columns:repeat(3,1fr); } }
+.mc { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 12px; }
+.mc .v { font-size:22px; font-weight:900; line-height:1.1; }
+.mc .v.lime { color:var(--lime); }
+.mc .l { font-size:10px; font-weight:600; letter-spacing:.6px; text-transform:uppercase; color:var(--label); margin-top:5px; }
+
+/* ── Section ── */
+.sec-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.sec-ttl { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--label); }
+.gap { margin-bottom:28px; }
+
+/* ─────────────────────────────────────────────────
+   HORIZONTAL FUNNEL FLOW
+───────────────────────────────────────────────── */
+.flow-outer { overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:8px; }
+.flow-inner { display:flex; align-items:flex-end; min-width:600px; }
+
+.flow-step {
+  flex: 1;
+  display:flex; flex-direction:column; align-items:center;
+  min-width:110px;
+}
+
+/* Step name */
+.flow-name {
+  font-size:10px; font-weight:700; letter-spacing:.4px; text-transform:uppercase;
+  color:var(--label); text-align:center; margin-bottom:10px; line-height:1.3;
+}
+.flow-name span { font-size:9px; display:block; color:var(--muted); margin-top:2px; }
+
+/* Bar container — fixed height, bar grows from bottom */
+.flow-bar-wrap {
+  width:52px; height:120px;
+  display:flex; flex-direction:column; justify-content:flex-end;
+  margin-bottom:12px;
+}
+.flow-bar {
+  width:100%; border-radius:5px 5px 0 0;
+  background: var(--lime);
+  transition: height .7s cubic-bezier(.4,0,.2,1);
+  height: 0%;
+  position: relative;
+}
+.flow-bar::after {
+  content: attr(data-pct);
+  position:absolute; top:-20px; left:50%; transform:translateX(-50%);
+  font-size:11px; font-weight:800; color:var(--lime); white-space:nowrap;
+}
+
+/* Count box below bar */
+.flow-counts {
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:10px 10px 8px; width:100%; text-align:center;
+}
+.flow-uniq { font-size:18px; font-weight:900; color:var(--text); line-height:1; }
+.flow-uniq-lbl { font-size:9px; font-weight:600; color:var(--lime); letter-spacing:.5px; text-transform:uppercase; margin-bottom:6px; }
+.divider-line { height:1px; background:var(--border); margin:6px 0; }
+.flow-total { font-size:13px; font-weight:700; color:var(--text2); line-height:1; }
+.flow-total-lbl { font-size:9px; font-weight:500; color:var(--muted); letter-spacing:.4px; text-transform:uppercase; }
+
+/* Connector between steps */
+.flow-connector {
+  display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
+  padding-bottom: 60px; /* aligns with count box */
+  min-width:42px; flex-shrink:0;
+}
+.conn-arrow { font-size:18px; color:var(--muted); line-height:1; }
+.conn-drop { font-size:10px; font-weight:800; text-align:center; margin-top:4px; white-space:nowrap; }
+.conn-drop.high { color:var(--red); }
+.conn-drop.med  { color:var(--amber); }
+.conn-drop.low  { color:var(--muted); }
+.conn-drop-lbl  { font-size:9px; color:var(--muted); }
+
+/* ── Chart section ── */
+.chart-section { display:none; margin-top:16px; }
+.chart-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px 20px 16px; margin-bottom:14px; }
+.chart-card-title { font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--label); margin-bottom:16px; }
+.chart-canvas-wrap { position:relative; }
+
+/* ── Signals grid ── */
+.sig-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+@media(max-width:560px){ .sig-grid { grid-template-columns:repeat(2,1fr); } }
+.sig-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:13px; }
+.sig-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px; }
+.sig-name { font-size:10px; font-weight:600; letter-spacing:.4px; text-transform:uppercase; color:var(--label); line-height:1.3; }
+.sig-val { font-size:20px; font-weight:900; }
+.sig-val.warn { color:var(--red); }
+/* Dual count row: total | unique */
+.sig-counts { display:flex; gap:10px; }
+.sig-stat { display:flex; flex-direction:column; }
+.sig-stat .sv { font-size:13px; font-weight:800; color:var(--text2); }
+.sig-stat .sl { font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); }
+.sig-stat.u .sv { color:var(--lime); }
+
+/* ── Insights ── */
+.ins-list { display:flex; flex-direction:column; gap:10px; }
+.ins { border-radius:12px; padding:13px 15px; border-left:3px solid; }
+.ins.high { background:rgba(255,92,58,.08);  border-color:var(--red); }
+.ins.med  { background:rgba(245,166,35,.07); border-color:var(--amber); }
+.ins.low  { background:rgba(255,255,255,.03); border-color:var(--muted); }
+.ins.ok   { background:rgba(74,222,128,.07);  border-color:var(--green); }
+.ins-hd { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+.ins-sev { font-size:9px; font-weight:800; letter-spacing:1px; text-transform:uppercase; padding:2px 7px; border-radius:99px; }
+.ins.high .ins-sev { background:var(--red);   color:#000; }
+.ins.med  .ins-sev { background:var(--amber); color:#000; }
+.ins.low  .ins-sev { background:var(--muted); color:#fff; }
+.ins.ok   .ins-sev { background:var(--green); color:#000; }
+.ins-step  { font-size:11px; font-weight:600; color:var(--label); }
+.ins-issue { font-size:13px; font-weight:600; margin-bottom:3px; }
+.ins-fix   { font-size:12px; color:var(--label); line-height:1.5; }
+.ins-fix strong { color:var(--text); font-weight:600; }
+
+@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+.f { animation:fadeUp .3s ease both; }
+</style>
+</head>
+<body>
+
+<!-- Auth screen -->
+<div id="auth-screen" class="auth-wrap" style="display:none">
+  <h2>Analytics Access</h2>
+  <p>Enter your access key to view the dashboard.</p>
+  <div class="auth-row">
+    <input id="key-input" class="auth-input" type="password" placeholder="Access key"
+           onkeydown="if(event.key==='Enter')tryKey()"/>
+    <button class="auth-btn" onclick="tryKey()">View</button>
+  </div>
+  <p id="auth-err" class="auth-err">Incorrect key — try again.</p>
+</div>
+
+<!-- Dashboard -->
+<div id="main" style="display:none">
+<div class="page">
+
+  <!-- Header -->
+  <div class="header f">
+    <h1>Shrinkray <span>Analytics</span></h1>
+    <div class="hdr-right">
+      <span class="updated" id="last-updated">—</span>
+      <button class="btn" onclick="load()" id="btn-refresh">Refresh</button>
+    </div>
+  </div>
+
+  <!-- Period pills -->
+  <div class="period-row f">
+    <button class="btn" data-p="today" onclick="setPeriod('today')">Today</button>
+    <button class="btn" data-p="7d"    onclick="setPeriod('7d')">Last 7 Days</button>
+    <button class="btn active" data-p="all" onclick="setPeriod('all')">All Time</button>
+  </div>
+
+  <!-- Metrics -->
+  <div class="metrics f">
+    <div class="mc"><div class="v" id="m-s">—</div><div class="l">Sessions</div></div>
+    <div class="mc"><div class="v lime" id="m-p">—</div><div class="l">Paid Orders</div></div>
+    <div class="mc"><div class="v lime" id="m-r">—</div><div class="l">Revenue</div></div>
+    <div class="mc"><div class="v" id="m-c">—</div><div class="l">Conversion</div></div>
+    <div class="mc"><div class="v" id="m-a">—</div><div class="l">Avg Order</div></div>
+    <div class="mc"><div class="v" id="m-k">—</div><div class="l">Peak 30 min</div></div>
+  </div>
+
+  <!-- Funnel flow -->
+  <div class="gap">
+    <div class="sec-hdr f">
+      <div class="sec-ttl">User Journey Flow</div>
+      <button class="btn" id="btn-chart" onclick="toggleCharts()">📊 View Charts</button>
+    </div>
+
+    <!-- Horizontal flow — always visible -->
+    <div class="f flow-outer">
+      <div class="flow-inner" id="flow"></div>
+    </div>
+
+    <!-- Charts — shown on toggle -->
+    <div class="chart-section" id="chart-section">
+      <div class="chart-card">
+        <div class="chart-card-title">Daily Activity — Last 7 Days</div>
+        <div class="chart-canvas-wrap" style="height:200px">
+          <canvas id="c-daily"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Today — Activity by 30-min Slot</div>
+        <div class="chart-canvas-wrap" style="height:180px">
+          <canvas id="c-slots"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drop-off signals -->
+  <div class="gap">
+    <div class="sec-ttl f" style="margin-bottom:14px">Drop-off Signals</div>
+    <div class="sig-grid f" id="signals"></div>
+  </div>
+
+  <!-- Insights -->
+  <div class="gap">
+    <div class="sec-ttl f" style="margin-bottom:14px">Actionable Insights</div>
+    <div class="ins-list f" id="insights"></div>
+  </div>
+
+</div>
+</div>
+
+<script>
+  // Chart.js defaults
+  Chart.defaults.color = '#666';
+  Chart.defaults.borderColor = '#272727';
+  Chart.defaults.font.family = 'Inter';
+  Chart.defaults.font.size = 11;
+  Chart.defaults.plugins.legend.labels.boxWidth = 8;
+  Chart.defaults.plugins.legend.labels.padding = 12;
+
+  let currentPeriod = 'all';
+  let chartsOpen    = false;
+  let lastData      = null;
+  let ci            = {};   // chart instances
+
+  // ── Auth ────────────────────────────────────────────────────────────────
+  const SK = 'srx_ak';
+  const getKey = () => sessionStorage.getItem(SK) || '';
+
+  function tryKey() {
+    sessionStorage.setItem(SK, document.getElementById('key-input').value.trim());
+    checkAccess();
+  }
+  async function checkAccess() {
+    if (!getKey()) { showAuth(); return; }
+    let d;
+    try {
+      const r = await fetch(`/webhook/analytics?key=${encodeURIComponent(getKey())}&period=${currentPeriod}`);
+      if (r.status === 401) { showAuth(true); return; }
+      d = await r.json();
+    } catch {
+      showAuth(); return;   // only network errors show auth
+    }
+    showMain();
+    try { render(d); } catch(e) { console.error('Render error:', e); }
+  }
+  function showAuth(err) {
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('main').style.display = 'none';
+    if (err) document.getElementById('auth-err').style.display = 'block';
+  }
+  function showMain() {
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('main').style.display = 'block';
+  }
+
+  // ── Period ───────────────────────────────────────────────────────────────
+  function setPeriod(p) {
+    currentPeriod = p;
+    document.querySelectorAll('[data-p]').forEach(b => b.classList.toggle('active', b.dataset.p === p));
+    load();
+  }
+
+  // ── Charts toggle ────────────────────────────────────────────────────────
+  function toggleCharts() {
+    chartsOpen = !chartsOpen;
+    document.getElementById('chart-section').style.display = chartsOpen ? 'block' : 'none';
+    document.getElementById('btn-chart').textContent = chartsOpen ? '✕ Hide Charts' : '📊 View Charts';
+    document.getElementById('btn-chart').classList.toggle('active', chartsOpen);
+    if (chartsOpen && lastData) renderCharts(lastData.timeSeries);
+  }
+
+  // ── Load ─────────────────────────────────────────────────────────────────
+  async function load() {
+    document.getElementById('btn-refresh').textContent = '...';
+    try {
+      const r = await fetch(`/webhook/analytics?key=${encodeURIComponent(getKey())}&period=${currentPeriod}`);
+      if (r.status === 401) { showAuth(true); return; }
+      lastData = await r.json();
+      try { render(lastData); } catch(e) { console.error('Render error:', e); }
+      if (chartsOpen) { try { renderCharts(lastData.timeSeries); } catch(e) {} }
+    } catch {}
+    document.getElementById('btn-refresh').textContent = 'Refresh';
+  }
+
+  // ── Render ───────────────────────────────────────────────────────────────
+  function render(d) {
+    // Metrics
+    const topU = d.funnel[0]?.unique || 0;
+    const paid = d.funnel[4]?.unique || 0;
+    const cvr  = topU > 0 ? (paid / topU * 100).toFixed(1) : '0.0';
+    document.getElementById('m-s').textContent = topU.toLocaleString();
+    document.getElementById('m-p').textContent = paid.toLocaleString();
+    document.getElementById('m-r').textContent = d.totalRevenue ? '₹' + (d.totalRevenue >= 1000 ? (d.totalRevenue/1000).toFixed(1)+'K' : d.totalRevenue.toLocaleString('en-IN')) : '—';
+    document.getElementById('m-c').textContent = cvr + '%';
+    document.getElementById('m-a').textContent = d.avgOrderValue ? '₹' + d.avgOrderValue.toLocaleString('en-IN') : '—';
+    document.getElementById('m-k').textContent = d.timeSeries?.peak30 || '—';
+
+    // ── Horizontal funnel flow ──────────────────────────────────────────
+    const flowEl = document.getElementById('flow');
+    let html = '';
+    const LIME_OPACITY = [0.9, 0.75, 0.60, 0.45, 0.32]; // fades with each step
+
+    d.funnel.forEach((s, i) => {
+      // Step column
+      html += `
+        <div class="flow-step">
+          <div class="flow-name">${s.label}<span>Step ${i+1}</span></div>
+          <div class="flow-bar-wrap">
+            <div class="flow-bar"
+                 data-h="${s.pctOfTop}"
+                 data-pct="${s.pctOfTop}%"
+                 style="background:rgba(197,254,0,${LIME_OPACITY[i]});height:0%">
+            </div>
+          </div>
+          <div class="flow-counts">
+            <div class="flow-uniq">${s.unique.toLocaleString()}</div>
+            <div class="flow-uniq-lbl">unique</div>
+            <div class="divider-line"></div>
+            <div class="flow-total">${s.total.toLocaleString()}</div>
+            <div class="flow-total-lbl">total events</div>
+          </div>
+        </div>`;
+
+      // Connector (not after last step)
+      if (i < d.funnel.length - 1) {
+        const dc = s.dropPct === null ? 'low' : s.dropPct > 50 ? 'high' : s.dropPct > 25 ? 'med' : 'low';
+        const dropLabel = d.funnel[i+1].dropPct !== null ? `−${d.funnel[i+1].dropPct}%` : '';
+        html += `
+          <div class="flow-connector">
+            <div class="conn-arrow">›</div>
+            ${dropLabel ? `<div class="conn-drop ${dc}">${dropLabel}</div><div class="conn-drop-lbl">drop</div>` : ''}
+          </div>`;
+      }
+    });
+
+    flowEl.innerHTML = html;
+    // Animate bars after paint
+    requestAnimationFrame(() => {
+      flowEl.querySelectorAll('.flow-bar').forEach(el => {
+        el.style.height = el.dataset.h + '%';
+      });
+    });
+
+    // ── Signals ─────────────────────────────────────────────────────────
+    const ext = d.extras;
+    const sigs = [
+      { name: 'Invalid Codes',    e: ext.code_invalid,      warn: (ext.code_invalid?.total||0) > 3 },
+      { name: 'Reuse Blocked',    e: ext.code_reused,       warn: false },
+      { name: 'Reached Razorpay', e: ext.payment_started,   warn: false },
+      { name: 'Abandoned Pay',    e: ext.payment_cancelled, warn: (ext.payment_cancelled?.total||0) > 0 },
+    ];
+    document.getElementById('signals').innerHTML = sigs.map(s => `
+      <div class="sig-card">
+        <div class="sig-top">
+          <span class="sig-name">${s.name}</span>
+        </div>
+        <div class="sig-counts">
+          <div class="sig-stat">
+            <span class="sv ${s.warn ? 'warn' : ''}">${(s.e?.total||0)}</span>
+            <span class="sl">Total</span>
+          </div>
+          <div class="sig-stat u">
+            <span class="sv">${(s.e?.unique||0)}</span>
+            <span class="sl">Unique</span>
+          </div>
+        </div>
+      </div>`).join('');
+
+    // ── Insights ─────────────────────────────────────────────────────────
+    document.getElementById('insights').innerHTML = d.insights.map(ins => `
+      <div class="ins ${ins.sev}">
+        <div class="ins-hd">
+          <span class="ins-sev">${ins.sev === 'ok' ? 'OK' : ins.sev.toUpperCase()}</span>
+          <span class="ins-step">${ins.step}</span>
+        </div>
+        <div class="ins-issue">${ins.issue}</div>
+        <div class="ins-fix"><strong>Fix:</strong> ${ins.fix}</div>
+      </div>`).join('');
+
+    document.getElementById('last-updated').textContent =
+      'Updated ' + new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+  }
+
+  // ── Charts ───────────────────────────────────────────────────────────────
+  function destroyChart(id) {
+    if (ci[id]) { ci[id].destroy(); delete ci[id]; }
+  }
+
+  function renderCharts(ts) {
+    // 1. Daily 7-day line
+    destroyChart('daily');
+    ci['daily'] = new Chart(document.getElementById('c-daily').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: ts.daily.map(d => d.label),
+        datasets: [
+          { label:'Page Lands',    data:ts.daily.map(d=>d.page_load),         borderColor:'#444', pointBackgroundColor:'#444', tension:.35, pointRadius:4 },
+          { label:'Code Unlocked', data:ts.daily.map(d=>d.code_unlocked),     borderColor:'#c5fe00', pointBackgroundColor:'#c5fe00', tension:.35, pointRadius:4 },
+          { label:'Order Placed',  data:ts.daily.map(d=>d.order_placed),      borderColor:'#4ade80', pointBackgroundColor:'#4ade80', tension:.35, pointRadius:4 },
+          { label:'Paid',          data:ts.daily.map(d=>d.payment_completed), borderColor:'#60a5fa', pointBackgroundColor:'#60a5fa', tension:.35, pointRadius:4 },
+        ],
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ position:'bottom', labels:{ color:'#777', usePointStyle:true } } },
+        scales:{
+          x:{ grid:{color:'#1e1e1e'}, ticks:{color:'#666'} },
+          y:{ grid:{color:'#1e1e1e'}, ticks:{color:'#666', stepSize:1}, beginAtZero:true },
+        },
+      },
+    });
+
+    // 2. 30-min slots bar chart
+    destroyChart('slots');
+    const maxVal = Math.max(...ts.slots30.map(s=>s.count), 1);
+    ci['slots'] = new Chart(document.getElementById('c-slots').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ts.slots30.map(s => s.label),
+        datasets: [{
+          label:'Events',
+          data: ts.slots30.map(s => s.count),
+          backgroundColor: ts.slots30.map(s =>
+            s.count === maxVal && s.count > 0 ? 'rgba(197,254,0,.85)' : 'rgba(197,254,0,.2)'),
+          borderRadius: 3,
+        }],
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{
+          legend:{ display:false },
+          tooltip:{ callbacks:{ title:c => c[0].label, label:c => ` ${c.raw} events` } },
+        },
+        scales:{
+          x:{
+            grid:{ display:false },
+            ticks:{
+              color:'#555', maxRotation:0,
+              // Show label only every 2nd slot (= every hour)
+              callback:(_, i) => i % 2 === 0 ? ts.slots30[i].label : '',
+            },
+          },
+          y:{ grid:{color:'#1e1e1e'}, ticks:{color:'#666', stepSize:1}, beginAtZero:true },
+        },
+      },
+    });
+  }
+
+  // ── Bootstrap ─────────────────────────────────────────────────────────────
+  const urlKey = new URLSearchParams(location.search).get('key');
+  if (urlKey) sessionStorage.setItem(SK, urlKey);
+  checkAccess();
+  setInterval(load, 30000);
+</script>
+</body>
+</html>

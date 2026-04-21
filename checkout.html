@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SHRINKRAY × WABUY | Your Details</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=container-queries"></script>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary-container": "#c5fe00", "on-primary-container": "#1a2200",
+        "primary": "#f3ffcd", "background": "#0e0e0e", "surface": "#0e0e0e",
+        "surface-container": "#1a1919", "surface-container-high": "#201f1f",
+        "surface-container-highest": "#262626", "on-surface": "#ffffff",
+        "on-surface-variant": "#adaaaa", "outline": "#767575",
+        "outline-variant": "#484847", "error": "#ff7351",
+      },
+      fontFamily: { "headline": ["Space Grotesk"], "body": ["Manrope"], "label": ["Space Grotesk"] },
+    },
+  },
+}
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+  body { font-family: 'Manrope', sans-serif; background: #0e0e0e; color: #fff; }
+  html, body { overscroll-behavior: none; }
+
+  /* ── Glass ── */
+  .glass {
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.09);
+  }
+
+  /* ── Dark glass inputs (page-1 trick) ── */
+  .field-input {
+    width: 100%;
+    background: rgba(15,15,15,0.6) !important;
+    -webkit-box-shadow: 0 0 0 50px rgba(15,15,15,0.6) inset !important;
+    border: 1px solid rgba(100,100,100,0.35);
+    border-radius: 9999px;
+    padding: 0.875rem 1.5rem;
+    color: #fff;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .field-input::placeholder { color: rgba(173,170,170,0.45); }
+  .field-input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 50px rgba(15,15,15,0.6) inset !important;
+    -webkit-text-fill-color: #fff !important;
+    caret-color: #fff;
+  }
+  .field-input:focus {
+    border-color: rgba(197,254,0,0.55) !important;
+    -webkit-box-shadow: 0 0 0 50px rgba(15,15,15,0.6) inset !important;
+  }
+  .field-input.input-error { border-color: rgba(255,115,81,0.6) !important; }
+
+  /* ── Phone prefix ── */
+  .phone-prefix {
+    background: rgba(15,15,15,0.6);
+    -webkit-box-shadow: 0 0 0 50px rgba(15,15,15,0.6) inset;
+    border: 1px solid rgba(100,100,100,0.35);
+    border-right: none;
+    border-radius: 9999px 0 0 9999px;
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    color: #c5fe00;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .field-input.phone-input {
+    border-radius: 0 9999px 9999px 0;
+    border-left: none;
+  }
+  .field-input.phone-input:focus { border-left: none; }
+
+  /* ── Validation error toast ── */
+  @keyframes err-pop {
+    0%   { transform: translateX(-50%) translateY(10px); opacity: 0; }
+    12%, 78% { transform: translateX(-50%) translateY(0); opacity: 1; }
+    100% { transform: translateX(-50%) translateY(10px); opacity: 0; }
+  }
+  .err-toast {
+    position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%);
+    background: rgba(160,30,0,0.92); backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,115,81,0.3); border-radius: 9999px;
+    padding: 7px 18px; font-size: 10px;
+    font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.12em; color: #fff;
+    z-index: 500; pointer-events: none; white-space: nowrap;
+    animation: err-pop 2.8s ease forwards;
+  }
+
+  /* ── CTA button ── */
+  .btn-primary {
+    background: linear-gradient(135deg, #c5fe00 0%, #a8d600 100%);
+    box-shadow: 0 10px 30px -10px rgba(197,254,0,0.5);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn-primary:active { transform: scale(0.97); box-shadow: 0 4px 14px -4px rgba(197,254,0,0.4); }
+
+  /* ── Qty stepper ── */
+  .qty-step-btn {
+    width: 22px; height: 22px;
+    border-radius: 9999px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 800; font-size: 1rem;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.25);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; line-height: 1; flex-shrink: 0;
+  }
+  .qty-step-btn.qty-step-active {
+    border-color: rgba(197,254,0,0.4);
+    background: rgba(197,254,0,0.12);
+    color: #c5fe00;
+  }
+  .qty-step-btn:active { transform: scale(0.88); }
+
+  /* ── Step connector ── */
+  .step-connector { flex: 1; height: 1px; max-width: 20px; }
+
+  /* ── Float animation ── */
+  @keyframes float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%       { transform: translateY(-8px) scale(1.01); }
+  }
+  .animate-float { animation: float 4.5s ease-in-out infinite; }
+
+  /* ── Price glow ── */
+  @keyframes price-pulse {
+    0%, 100% { text-shadow: 0 0 8px rgba(197,254,0,0.3); }
+    50%       { text-shadow: 0 0 20px rgba(197,254,0,0.7); }
+  }
+  .price-glow { animation: price-pulse 2s ease-in-out infinite; }
+
+  /* ── Notification toast ── */
+  @keyframes toast-slide-in {
+    0%   { transform: translateY(-110%); opacity: 0; }
+    12%, 85% { transform: translateY(0);     opacity: 1; }
+    100% { transform: translateY(-110%); opacity: 0; }
+  }
+  .notification-toast { animation: toast-slide-in 5s ease-in-out forwards; }
+
+  /* ── Divider in deal bar ── */
+  .bar-divider {
+    width: 1px;
+    height: 28px;
+    background: rgba(255,255,255,0.1);
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Notification toast ── -->
+<div class="fixed z-50 left-0 right-0 flex justify-center pointer-events-none px-6" style="top:76px;">
+  <div class="notification-toast glass rounded-full px-4 py-2 flex items-center gap-2">
+    <span class="material-symbols-outlined text-primary-container" style="font-size:13px;font-variation-settings:'FILL' 1;">bolt</span>
+    <span class="text-[10px] font-label tracking-wider text-on-surface" id="co-toast-msg">Axxkush from Bengaluru just grabbed one!</span>
+  </div>
+</div>
+
+<!-- ── Header (72px, 2 rows) ── -->
+<header class="fixed top-0 w-full z-50 bg-[#0e0e0e]/70 backdrop-blur-xl" style="height:72px;">
+  <!-- Row 1 (h-10) -->
+  <div class="flex items-center justify-between px-5" style="height:40px;">
+    <!-- Back button -->
+    <button onclick="history.back()"
+            class="w-8 h-8 rounded-full glass flex items-center justify-center text-primary-container hover:opacity-80 transition-opacity flex-shrink-0">
+      <span class="material-symbols-outlined" style="font-size:16px;">arrow_back</span>
+    </button>
+    <!-- Brand + viewer count -->
+    <div class="flex flex-col items-center">
+      <h1 class="text-[11px] font-black tracking-[0.2em] text-primary font-headline uppercase leading-none">SHRINKRAY × WABUY</h1>
+      <div class="flex items-center gap-1 mt-0.5">
+        <span class="w-1 h-1 bg-error rounded-full animate-pulse"></span>
+        <span class="text-[8px] font-label uppercase tracking-widest text-on-surface-variant/70" id="viewer-count-co">1.8K watching</span>
+      </div>
+    </div>
+    <!-- Spacer -->
+    <div class="w-8 flex-shrink-0"></div>
+  </div>
+  <!-- Row 2 (h-8) — 4-step stepper -->
+  <div class="flex items-center justify-center gap-1" style="height:32px;">
+    <!-- Step 1: Locked (done) -->
+    <div class="flex items-center gap-0.5">
+      <span class="material-symbols-outlined text-primary-container/55" style="font-size:9px;font-variation-settings:'FILL' 1;">check_circle</span>
+      <span class="text-[7.5px] font-label uppercase tracking-wide text-primary-container/55">Locked</span>
+    </div>
+    <div class="step-connector bg-primary-container/25"></div>
+    <!-- Step 2: Details (active) -->
+    <div class="flex items-center gap-0.5">
+      <span class="w-1.5 h-1.5 rounded-full bg-primary-container flex-shrink-0"></span>
+      <span class="text-[7.5px] font-label uppercase tracking-wide text-primary-container font-bold">Details</span>
+    </div>
+    <div class="step-connector bg-white/10"></div>
+    <!-- Step 3: Pay -->
+    <div class="flex items-center gap-0.5">
+      <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:rgba(255,255,255,0.18);"></span>
+      <span class="text-[7.5px] font-label uppercase tracking-wide text-on-surface-variant/30">Pay</span>
+    </div>
+    <div class="step-connector bg-white/10"></div>
+    <!-- Step 4: Done -->
+    <div class="flex items-center gap-0.5">
+      <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:rgba(255,255,255,0.18);"></span>
+      <span class="text-[7.5px] font-label uppercase tracking-wide text-on-surface-variant/30">Done</span>
+    </div>
+  </div>
+</header>
+
+<!-- ── Product image (240px, margin-top 72px) ── -->
+<section class="relative w-full overflow-hidden" style="height:240px; margin-top:72px;">
+  <!-- Bottom gradient fade -->
+  <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background z-10 pointer-events-none"></div>
+  <img id="checkout-product-img" alt="Product"
+       class="w-full h-full object-cover animate-float"
+       src="product1.webp"/>
+  <!-- Product name overlay (top-4) -->
+  <div class="absolute top-4 left-0 right-0 px-6 z-20 text-center pointer-events-none">
+    <p id="co-product-name" class="font-headline font-black text-sm text-white uppercase tracking-widest drop-shadow-lg"></p>
+    <p id="co-product-sub" class="font-label text-[9px] text-on-surface-variant uppercase tracking-widest mt-0.5 drop-shadow-lg"></p>
+  </div>
+</section>
+
+<!-- ── Deal summary bar (-mt-5 overlap, max-w-[340px]) ── -->
+<div class="-mt-5 relative z-20 max-w-[340px] mx-auto px-5">
+  <div class="glass rounded-full h-14 flex items-center px-5">
+    <!-- Price -->
+    <span class="font-headline font-black text-xl price-glow text-primary-container whitespace-nowrap flex-grow" id="dynamic-price">₹—</span>
+    <!-- Divider -->
+    <div class="bar-divider mx-3"></div>
+    <!-- Qty stepper -->
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <span class="text-[8px] font-label uppercase tracking-wider text-on-surface-variant/40">QTY</span>
+      <button id="qty-minus" onclick="changeQty(-1)" class="qty-step-btn">−</button>
+      <span class="text-sm font-headline font-black text-white tabular-nums w-4 text-center" id="qty-display-num">1</span>
+      <button id="qty-plus" onclick="changeQty(1)" class="qty-step-btn qty-step-active">+</button>
+    </div>
+  </div>
+  <!-- Timer blinker -->
+  <div class="flex items-center justify-center gap-1.5 mt-2">
+    <span class="w-1.5 h-1.5 rounded-full bg-error animate-pulse flex-shrink-0"></span>
+    <span class="font-label font-bold text-[11px] text-error tabular-nums" id="co-countdown">01:45</span>
+    <span class="text-[8px] font-label uppercase tracking-[0.15em] text-on-surface-variant/35">deal expires</span>
+  </div>
+</div>
+
+<!-- ── Form section ── -->
+<main class="max-w-[340px] mx-auto px-5 mt-5 pb-32">
+
+  <!-- Fun heading -->
+  <div class="text-center mb-6">
+    <h2 class="font-headline font-black text-lg text-white uppercase tracking-tight leading-tight">You locked the deal 🔒</h2>
+    <p class="text-on-surface-variant text-xs mt-1.5 leading-relaxed">Quick intro — your order ships right after this.</p>
+  </div>
+
+  <!-- Fields -->
+  <div class="flex flex-col gap-3">
+    <!-- Name -->
+    <div>
+      <label class="text-[9px] font-label uppercase tracking-[0.2em] text-on-surface-variant/50 px-3 mb-1.5 block">Full Name</label>
+      <input class="field-input" id="field-name" type="text" placeholder="Your full name" autocomplete="name"/>
+    </div>
+    <!-- Phone -->
+    <div>
+      <label class="text-[9px] font-label uppercase tracking-[0.2em] text-on-surface-variant/50 px-3 mb-1.5 block">WhatsApp Number</label>
+      <div class="flex">
+        <div class="phone-prefix">+91</div>
+        <input class="field-input phone-input flex-1" id="field-phone" type="tel" inputmode="numeric"
+               maxlength="10" placeholder="10-digit number" autocomplete="tel"
+               oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)"/>
+      </div>
+    </div>
+    <!-- Email -->
+    <div>
+      <label class="text-[9px] font-label uppercase tracking-[0.2em] text-on-surface-variant/50 px-3 mb-1.5 block">Email Address</label>
+      <input class="field-input" id="field-email" type="email" placeholder="you@example.com" autocomplete="email"/>
+    </div>
+  </div>
+
+  <!-- Trust signal -->
+  <div class="mt-5 flex items-center justify-center gap-1.5 text-on-surface-variant/30 text-[9px] font-label uppercase tracking-wider">
+    <span class="material-symbols-outlined" style="font-size:11px;">lock</span>
+    Secure checkout
+  </div>
+
+</main>
+
+<!-- ── Fixed footer CTA ── -->
+<footer class="fixed bottom-0 left-0 w-full px-5 pt-3 pb-6 z-50" style="background: linear-gradient(to top, #0e0e0e 55%, transparent);">
+  <div class="max-w-[340px] mx-auto">
+    <button onclick="nextStep()"
+            class="btn-primary w-full h-14 rounded-full text-black font-headline font-black text-xs uppercase tracking-[0.25em] flex items-center justify-center gap-2">
+      <span>Fill Address Details</span>
+      <span class="material-symbols-outlined" style="font-size:16px;font-variation-settings:'FILL' 1;">arrow_forward</span>
+    </button>
+  </div>
+</footer>
+
+<script>
+  // ── Analytics ──
+  function getUid() {
+    let uid = localStorage.getItem('srx_uid');
+    if (!uid) { uid = Math.random().toString(36).slice(2,9) + Date.now().toString(36); localStorage.setItem('srx_uid', uid); }
+    return uid;
+  }
+  function track(event, data) {
+    fetch('/webhook/track', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event, sid: getUid(), ...(data || {}) })
+    }).catch(() => {});
+  }
+  track('checkout_started');
+
+  // ── Load product from sessionStorage ──
+  const _prod = JSON.parse(sessionStorage.getItem('srx_product') || '{}');
+  if (_prod.img)      document.getElementById('checkout-product-img').src     = _prod.img;
+  if (_prod.title)    document.getElementById('co-product-name').textContent  = _prod.title;
+  if (_prod.subtitle) document.getElementById('co-product-sub').textContent   = _prod.subtitle;
+
+  const params   = new URLSearchParams(window.location.search);
+  const urlPrice = parseInt(params.get('price'));
+  let basePrice  = (urlPrice && urlPrice > 0) ? urlPrice : (_prod.price || 1299);
+  const STORAGE_KEY = 'srx_order_submitted';
+  const QTY_KEY     = 'srx_live_qty';
+
+  // ── Duplicate order guard ──
+  const prevOrder = sessionStorage.getItem(STORAGE_KEY);
+  if (prevOrder) {
+    const { phone: ph, orderId } = JSON.parse(prevOrder);
+    if (orderId) {
+      const banner = document.createElement('div');
+      banner.className = 'fixed inset-0 z-[100] bg-background/95 flex flex-col items-center justify-center gap-6 px-8 text-center';
+      banner.innerHTML = `
+        <span class="material-symbols-outlined text-primary-container text-5xl" style="font-variation-settings:'FILL' 1;">check_circle</span>
+        <h2 class="font-headline font-bold text-2xl text-white uppercase tracking-wider">Order Already Placed</h2>
+        <p class="text-on-surface-variant text-sm">Your order (ending in <strong class="text-white">${ph.slice(-4)}</strong>) is confirmed.<br/>Check WhatsApp for updates.</p>
+        <button onclick="sessionStorage.removeItem('${STORAGE_KEY}');location.href='index.html';"
+                class="mt-4 glass text-on-surface-variant font-label text-xs uppercase tracking-widest px-6 py-3 rounded-full">
+          Start New Order
+        </button>`;
+      document.body.appendChild(banner);
+    }
+  }
+
+  // ── Qty stepper ──
+  let currentQty = 1;
+  function changeQty(delta) {
+    const n = Math.max(1, Math.min(3, currentQty + delta));
+    if (n === currentQty) return;
+    currentQty = n;
+    sessionStorage.setItem(QTY_KEY, String(n));
+    document.getElementById('qty-display-num').textContent = n;
+    document.getElementById('dynamic-price').textContent = '₹' + (basePrice * n).toLocaleString('en-IN');
+    document.getElementById('qty-minus').classList.toggle('qty-step-active', n > 1);
+    document.getElementById('qty-plus').classList.toggle('qty-step-active', n < 3);
+  }
+  // Init display
+  document.getElementById('qty-display-num').textContent = currentQty;
+  document.getElementById('dynamic-price').textContent = '₹' + (basePrice * currentQty).toLocaleString('en-IN');
+  document.getElementById('qty-minus').classList.toggle('qty-step-active', currentQty > 1);
+
+  // ── Restore fields if navigating back ──
+  const savedData = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '{}');
+  if (!savedData.orderId) {
+    if (savedData.name)  document.getElementById('field-name').value  = savedData.name;
+    if (savedData.phone) document.getElementById('field-phone').value = savedData.phone;
+    if (savedData.email) document.getElementById('field-email').value = savedData.email;
+  }
+
+  // ── Countdown ──
+  let secs = parseInt(params.get('t')) || 105;
+  const coEl = document.getElementById('co-countdown');
+  coEl.textContent = `${String(Math.floor(secs/60)).padStart(2,'0')}:${String(secs%60).padStart(2,'0')}`;
+  const coTimer = setInterval(() => {
+    secs--;
+    coEl.textContent = `${String(Math.floor(secs/60)).padStart(2,'0')}:${String(secs%60).padStart(2,'0')}`;
+    if (secs <= 0) clearInterval(coTimer);
+  }, 1000);
+
+  // ── Viewer count ──
+  let viewers = 1800;
+  function updateViewers() {
+    const delta = Math.floor(Math.random() * 300) - 120;
+    viewers = Math.max(1000, Math.min(3000, viewers + delta));
+    const d = viewers >= 1000 ? (viewers/1000).toFixed(1)+'K' : viewers.toString();
+    document.getElementById('viewer-count-co').textContent = d + ' watching';
+  }
+  updateViewers();
+  setInterval(updateViewers, 1200);
+
+  // ── Dynamic toast names ──
+  const _TPEOPLE = [['Axxkush','Bengaluru'],['Pxxiya','Mumbai'],['Rxxhan','Delhi'],
+    ['Nxxha','Hyderabad'],['Kxxya','Pune'],['Sxxjay','Kochi'],['Txxvi','Chandigarh']];
+  const _tp = _TPEOPLE[Math.floor(Math.random() * _TPEOPLE.length)];
+  const _stockDisplay = 3 + Math.floor(Math.random() * 5);
+  document.getElementById('co-toast-msg').textContent =
+    `${_tp[0]} from ${_tp[1]} just grabbed one! Only ${_stockDisplay} left 🔥`;
+
+  // ── Form helpers — auto-dismiss error toast ──
+  let _errToastEl = null;
+  function showErr(msg, fieldId) {
+    if (_errToastEl) { _errToastEl.remove(); _errToastEl = null; }
+    const el = document.createElement('div');
+    el.className = 'err-toast'; el.textContent = msg;
+    document.body.appendChild(el); _errToastEl = el;
+    el.addEventListener('animationend', () => { el.remove(); if (_errToastEl === el) _errToastEl = null; });
+    if (fieldId) {
+      const f = document.getElementById(fieldId);
+      if (f) { f.classList.add('input-error'); f.addEventListener('input', () => f.classList.remove('input-error'), { once: true }); }
+    }
+  }
+  function hideErr() {}  // no-op — errors auto-dismiss
+
+  // ── Next step ──
+  function nextStep() {
+    const name  = document.getElementById('field-name').value.trim();
+    const phone = document.getElementById('field-phone').value.trim();
+    const email = document.getElementById('field-email').value.trim();
+
+    if (!name) { showErr('Enter your full name', 'field-name'); return; }
+    if (!/^[A-Za-z\s]{2,}$/.test(name)) { showErr('Name should be letters only', 'field-name'); return; }
+    if (!phone) { showErr('Enter your WhatsApp number', 'field-phone'); return; }
+    if (!/^\d{10}$/.test(phone)) { showErr('10-digit number required', 'field-phone'); return; }
+    if (!email) { showErr('Enter your email address', 'field-email'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { showErr('Enter a valid email address', 'field-email'); return; }
+
+    hideErr();
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ name, phone, email, ts: Date.now() }));
+    track('details_submitted', { qty: currentQty });
+    window.location.href = `checkout-step2.html?price=${basePrice}&t=${Math.max(10, secs)}&qty=${currentQty}`;
+  }
+</script>
+</body>
+</html>

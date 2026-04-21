@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SHRINKRAY × WABUY | Securing Payment</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "surface-bright": "#2c2c2c", "inverse-primary": "#4f6700",
+          "primary-fixed": "#c5fe00", "surface-container-low": "#131313",
+          "secondary-container": "#626200", "on-primary-fixed": "#384b00",
+          "tertiary-container": "#fce34b", "surface-container-lowest": "#000000",
+          "on-error": "#450900", "primary": "#f3ffcd", "surface-tint": "#f3ffcd",
+          "error-container": "#b92902", "on-surface": "#ffffff",
+          "surface-container-high": "#201f1f", "primary-fixed-dim": "#b9ef00",
+          "primary-container": "#c5fe00", "secondary": "#e9e958",
+          "background": "#0e0e0e", "on-error-container": "#ffd2c8",
+          "on-background": "#ffffff", "inverse-on-surface": "#565555",
+          "tertiary-dim": "#eed53e", "outline": "#767575",
+          "outline-variant": "#484847", "surface-container-highest": "#262626",
+          "surface": "#0e0e0e", "on-primary": "#4f6700",
+          "on-primary-container": "#485e00", "surface-variant": "#262626",
+          "on-secondary": "#555500", "error-dim": "#d53d18",
+          "on-tertiary-container": "#5d5200", "primary-dim": "#b9ef00",
+          "tertiary": "#fff1b2", "error": "#ff7351", "secondary-dim": "#dbdb4b",
+          "on-tertiary": "#675a00", "surface-container": "#1a1919",
+          "on-surface-variant": "#adaaaa", "surface-dim": "#0e0e0e",
+          "on-secondary-container": "#ffff6b",
+        },
+        borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" },
+        fontFamily: { "headline": ["Space Grotesk"], "body": ["Manrope"], "label": ["Space Grotesk"] }
+      },
+    },
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .animate-spin-slow { animation: spin 3s linear infinite; }
+
+  @keyframes slide-down {
+    0%        { transform: translateY(-100%); opacity: 0; }
+    10%, 90%  { transform: translateY(0);     opacity: 1; }
+    100%      { transform: translateY(-100%); opacity: 0; }
+  }
+  .notification-toast { animation: slide-down 5s ease-in-out forwards; }
+
+  @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .animate-slide-in { animation: slideIn 0.5s ease-out forwards; }
+
+  @keyframes pulse-glow {
+    0%, 100% { text-shadow: 0 0 10px rgba(197,254,0,0.4); }
+    50%       { text-shadow: 0 0 25px rgba(197,254,0,0.8); }
+  }
+  .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+
+  .glass-panel {
+    background: rgba(38,38,38,0.7);
+    backdrop-filter: blur(20px);
+  }
+
+  html, body { overscroll-behavior: none; }
+</style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary-container selection:text-on-primary-container" style="min-height:100dvh;display:flex;flex-direction:column;">
+
+<!-- Notification toast -->
+<div class="fixed top-20 left-0 right-0 z-50 flex justify-center pointer-events-none px-6">
+  <div class="notification-toast glass-panel border border-primary-container/20 px-4 py-2 rounded-full flex items-center gap-2 shadow-2xl">
+    <span class="text-[10px] text-primary-container material-symbols-outlined">bolt</span>
+    <p class="text-[10px] font-label uppercase tracking-wider text-on-surface" id="toast-text">
+      Someone just secured their order! ⚡️ <span class="text-error-dim">Only 2 left</span>
+    </p>
+  </div>
+</div>
+
+<!-- Header — consistent with all pages -->
+<header class="fixed top-0 w-full z-50 bg-[#0e0e0e]/70 backdrop-blur-xl flex justify-between items-center px-6 h-16">
+  <div class="w-10"></div>
+  <div class="flex flex-col items-center">
+    <h1 class="text-lg font-bold tracking-[0.2em] text-primary font-headline uppercase leading-none">SHRINKRAY × WABUY</h1>
+    <div class="flex items-center gap-1.5 mt-1">
+      <span class="w-1 h-1 rounded-full bg-error animate-pulse"></span>
+      <span class="text-[8px] font-label uppercase tracking-[0.15em] text-on-surface-variant/80" id="viewer-count">1.8K watching</span>
+    </div>
+  </div>
+  <div class="w-10 flex justify-end">
+    <span class="material-symbols-outlined text-on-surface-variant text-2xl">shopping_bag</span>
+  </div>
+</header>
+
+<!-- Main content -->
+<main class="flex-grow flex flex-col items-center justify-center px-6 pt-24 pb-24 max-w-lg mx-auto w-full">
+
+  <!-- Spinner with arc progress -->
+  <div class="relative flex flex-col items-center text-center mb-10">
+    <div class="relative mb-10">
+      <div class="absolute inset-0 rounded-full blur-3xl opacity-30 bg-primary-container"></div>
+      <svg class="w-36 h-36" viewBox="0 0 144 144">
+        <!-- Track -->
+        <circle cx="72" cy="72" fill="transparent" r="68" stroke="white" stroke-opacity="0.05" stroke-width="3"/>
+        <!-- Spinning decorative arc -->
+        <g class="animate-spin-slow" style="transform-origin:72px 72px">
+          <circle cx="72" cy="72" fill="transparent" r="68"
+                  stroke="#c5fe00" stroke-opacity="0.15"
+                  stroke-dasharray="60 367" stroke-linecap="round" stroke-width="3"/>
+        </g>
+        <!-- Progress arc — filled by JS -->
+        <circle id="progress-arc"
+                cx="72" cy="72" fill="transparent" r="68"
+                stroke="#c5fe00"
+                stroke-dasharray="427" stroke-dashoffset="427"
+                stroke-linecap="round" stroke-width="4"
+                transform="rotate(-90 72 72)"
+                style="filter:drop-shadow(0 0 8px rgba(197,254,0,0.8)); transition:none;"/>
+      </svg>
+      <div class="absolute inset-0 flex items-center justify-center">
+        <span class="material-symbols-outlined text-5xl text-primary-container" style="font-variation-settings:'FILL' 1;">lock</span>
+      </div>
+    </div>
+
+    <h1 id="redirect-heading" class="font-headline font-bold text-3xl tracking-tight mb-3 text-white flex items-center gap-3 justify-center animate-slide-in">
+      🔒 Securing Your Payment...
+    </h1>
+    <p class="text-on-surface-variant font-medium text-base">Redirecting to our trusted payment partner</p>
+    <p id="countdown-text" class="text-primary-container/80 text-sm font-bold mt-3 font-label uppercase tracking-wider animate-pulse-glow">
+      Redirecting in 3s...
+    </p>
+  </div>
+
+  <!-- Order summary card -->
+  <div class="w-full glass-panel border border-outline-variant/20 p-5 rounded-[2rem] flex items-center gap-5 mb-10 animate-slide-in">
+    <div class="w-24 h-28 rounded-2xl overflow-hidden flex-shrink-0 bg-surface-container-high">
+      <img alt="Heavyweight Hoodie" class="w-full h-full object-cover"
+           src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtx17E2Gx35aYyNfCV0UxkvIUnEv49486gMSGi3vPqR_jvrsHE8jmyMMJKtKAskE4nWp1T7ds452LwM5yO_8m0ggx3A5WCVv-7Qws2QPHXsSTGyvAmBtl8_S24wTnUouwJRNgXzL_YioU3emdzBf4FczUxZ3MaWlGt9VE1Qb_Ov5yhFuhuTkOdHfjTstqV8wsMIrcOTVrSIR2yRv4Oi8VqFw7kESqaIhzig8O9dWppjStP_-jn12kYyvXN_6KyIJ4RooO-7Hj0otmS"/>
+    </div>
+    <div class="flex-grow">
+      <span class="text-[10px] font-bold text-primary-container tracking-[0.2em] uppercase mb-1 block">Order Summary</span>
+      <h3 class="font-headline font-bold text-xl text-white mb-0.5 uppercase">Heavyweight Hoodie</h3>
+      <p class="text-on-surface-variant text-sm mb-4">Customer: <span id="order-name" class="text-white">—</span></p>
+      <div class="flex items-center justify-between">
+        <span class="font-headline font-black text-2xl text-primary-container animate-pulse-glow" id="order-total">₹1,299</span>
+        <div class="flex flex-col items-end gap-1">
+          <div class="px-3 py-1.5 rounded-full border border-primary-container/30 bg-primary-container/5 text-[10px] font-black text-primary-container uppercase tracking-wider">
+            SECURE ORDER
+          </div>
+          <span class="text-on-surface-variant text-[10px]">Qty: <span id="order-qty">1</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trust badges -->
+  <div class="w-full bg-surface-container-lowest/60 rounded-2xl border border-outline-variant/10 py-6 flex flex-col gap-5 px-4">
+    <div class="flex items-center justify-center gap-3 text-on-surface-variant">
+      <span class="material-symbols-outlined text-xl text-primary-container">shield</span>
+      <span class="text-xs font-black font-label uppercase tracking-[0.2em]">Powered by Razorpay</span>
+    </div>
+    <div class="flex items-center justify-center gap-3 text-on-surface-variant">
+      <span class="material-symbols-outlined text-xl text-primary-container" style="font-variation-settings:'FILL' 1;">lock</span>
+      <span class="text-xs font-black font-label uppercase tracking-[0.2em]">100% Secure Transaction</span>
+    </div>
+    <div class="flex items-center justify-center gap-3 text-on-surface-variant">
+      <span class="material-symbols-outlined text-xl text-primary-container">verified_user</span>
+      <span class="text-xs font-black font-label uppercase tracking-[0.2em]">PCI-DSS Compliant</span>
+    </div>
+  </div>
+
+</main>
+
+<!-- Footer — consistent with other pages -->
+<footer class="w-full py-6 flex flex-col items-center justify-center gap-2 bg-surface-container-lowest border-t border-outline-variant/10">
+  <span class="text-primary-container font-label text-[10px] font-bold uppercase tracking-[0.3em]">Secure Payments by SHRINKRAY</span>
+  <div class="flex gap-6 text-on-surface-variant/30">
+    <span class="text-[9px] font-bold uppercase tracking-widest">Verified Seller</span>
+    <span class="text-[9px] font-bold uppercase tracking-widest">Encrypted Checkout</span>
+    <span class="text-[9px] font-bold uppercase tracking-widest">PCI-DSS</span>
+  </div>
+</footer>
+
+<script>
+  const STORAGE_KEY = 'srx_order_submitted';
+  const params      = new URLSearchParams(window.location.search);
+
+  // ── Populate from URL params + sessionStorage ──
+  const price      = parseInt(params.get('price')) || 1299;
+  const qty        = parseInt(params.get('qty'))   || 1;
+  const paymentUrl = params.get('url') || '';
+  const stored     = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '{}');
+  const name       = stored.name || params.get('name') || 'Guest';
+  const city       = stored.city || '';
+
+  document.getElementById('order-name').textContent  = name;
+  document.getElementById('order-total').textContent = '₹' + (price * qty).toLocaleString('en-IN');
+  document.getElementById('order-qty').textContent   = qty;
+
+  // Personalise toast
+  if (name && city) {
+    document.getElementById('toast-text').innerHTML =
+      `<span class="text-primary-container font-bold">${name}</span> from <span class="text-primary-container font-bold">${city}</span> just locked in their order! ⚡️`;
+  }
+
+  // ── Viewer count ──
+  let viewers = 1800;
+  function updateViewers() {
+    const delta = Math.floor(Math.random() * 300) - 120;
+    viewers = Math.max(1000, Math.min(3000, viewers + delta));
+    const d = viewers >= 1000 ? (viewers / 1000).toFixed(1) + 'K' : viewers;
+    document.getElementById('viewer-count').textContent = d + ' watching';
+  }
+  setInterval(updateViewers, 1200);
+
+  // ── 3-second arc progress + countdown then redirect ──
+  const arc         = document.getElementById('progress-arc');
+  const countdownEl = document.getElementById('countdown-text');
+  const heading     = document.getElementById('redirect-heading');
+  const TOTAL_MS    = 3000;
+  const CIRCUMFERENCE = 427; // 2π × r68 ≈ 427
+  const t0 = performance.now();
+
+  function tick(now) {
+    const elapsed  = now - t0;
+    const progress = Math.min(elapsed / TOTAL_MS, 1);
+
+    arc.style.strokeDashoffset = String(CIRCUMFERENCE * (1 - progress));
+
+    const secsLeft = Math.ceil((TOTAL_MS - elapsed) / 1000);
+    if (secsLeft > 0) {
+      countdownEl.textContent = `Redirecting in ${secsLeft}s...`;
+    }
+
+    if (progress < 1) {
+      requestAnimationFrame(tick);
+    } else {
+      if (paymentUrl) {
+        countdownEl.textContent = 'Redirecting now...';
+        window.location.href = paymentUrl;
+      } else {
+        // No Razorpay URL — show confirmation fallback
+        heading.textContent = '✅ Order Confirmed!';
+        countdownEl.textContent = 'Payment link sent to your WhatsApp.';
+        countdownEl.classList.remove('animate-pulse-glow');
+        arc.style.stroke = '#c5fe00';
+      }
+    }
+  }
+
+  requestAnimationFrame(tick);
+</script>
+</body></html>
