@@ -1,15 +1,12 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
-  family: 4, // force IPv4 — Railway IPv6 blocked
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS,
-  },
-});
+const FROM = process.env.FROM_EMAIL || 'Shrinkray Studios <onboarding@resend.dev>';
+
+async function sendMail({ to, subject, html }) {
+  const { error } = await resend.emails.send({ from: FROM, to, subject, html });
+  if (error) throw new Error(error.message);
+}
 
 const HOODIE_IMG = 'https://lh3.googleusercontent.com/aida-public/AB6AXuAtx17E2Gx35aYyNfCV0UxkvIUnEv49486gMSGi3vPqR_jvrsHE8jmyMMJKtKAskE4nWp1T7ds452LwM5yO_8m0ggx3A5WCVv-7Qws2QPHXsSTGyvAmBtl8_S24wTnUouwJRNgXzL_YioU3emdzBf4FczUxZ3MaWlGt9VE1Qb_Ov5yhFuhuTkOdHfjTstqV8wsMIrcOTVrSIR2yRv4Oi8VqFw7kESqaIhzig8O9dWppjStP_-jn12kYyvXN_6KyIJ4RooO-7Hj0otmS';
 
@@ -140,8 +137,7 @@ async function sendOrderConfirmation({ name, email, orderId, qty, totalPrice, ph
         </td>
       </tr>`;
 
-  await transporter.sendMail({
-    from: `"Shrinkray Studios" <${process.env.GMAIL_USER}>`,
+  await sendMail({
     to: email,
     subject: `Order Received — #${orderId} 🎉`,
     html: baseLayout(content),
@@ -252,8 +248,7 @@ async function sendPaymentReceipt({ name, email, orderId, paymentId, totalPrice,
         </td>
       </tr>`;
 
-  await transporter.sendMail({
-    from: `"Shrinkray Studios" <${process.env.GMAIL_USER}>`,
+  await sendMail({
     to: email,
     subject: `Payment Confirmed — #${orderId} ✓`,
     html: baseLayout(content),
@@ -295,8 +290,7 @@ function stageEmail({ emoji, headline, body, orderId, badgeText, badgeStyle }) {
 
 async function sendOrderPacked({ name, email, orderId }) {
   if (!email) return;
-  await transporter.sendMail({
-    from: `"Shrinkray Studios" <${process.env.GMAIL_USER}>`,
+  await sendMail({
     to: email,
     subject: `Your order is being packed — #${orderId} 📦`,
     html: stageEmail({
@@ -311,8 +305,7 @@ async function sendOrderPacked({ name, email, orderId }) {
 
 async function sendOrderShipped({ name, email, orderId, qty, totalPrice, trackingUrl }) {
   if (!email) return;
-  await transporter.sendMail({
-    from: `"Shrinkray Studios" <${process.env.GMAIL_USER}>`,
+  await sendMail({
     to: email,
     subject: `Your order has shipped — #${orderId} 🚀`,
     html: stageEmail({
@@ -330,8 +323,7 @@ async function sendOrderShipped({ name, email, orderId, qty, totalPrice, trackin
 
 async function sendOrderDelivered({ name, email, orderId }) {
   if (!email) return;
-  await transporter.sendMail({
-    from: `"Shrinkray Studios" <${process.env.GMAIL_USER}>`,
+  await sendMail({
     to: email,
     subject: `Delivered! Hope you love it — #${orderId} 🎉`,
     html: stageEmail({
@@ -347,8 +339,7 @@ async function sendOrderDelivered({ name, email, orderId }) {
 
 async function sendOrderFeedback({ name, email, orderId }) {
   if (!email) return;
-  await transporter.sendMail({
-    from: `"Shrinkray Studios" <${process.env.GMAIL_USER}>`,
+  await sendMail({
     to: email,
     subject: `How was your Shrinkray order? 😊`,
     html: stageEmail({
@@ -365,8 +356,7 @@ async function sendOrderFeedback({ name, email, orderId }) {
 async function sendBroadcast({ name, email, subject, message }) {
   if (!email) return;
   const personalised = message.replace(/{name}/g, name.split(' ')[0]);
-  await transporter.sendMail({
-    from: `"Shrinkray Studios" <${process.env.GMAIL_USER}>`,
+  await sendMail({
     to: email,
     subject,
     html: baseLayout(`
