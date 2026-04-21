@@ -226,13 +226,13 @@ tailwind.config = {
 </header>
 
 <!-- ── Product image ── -->
-<section class="relative w-full overflow-hidden" style="height:260px; margin-top:72px;">
+<section class="relative w-full overflow-hidden" style="height:260px; margin-top:72px; background:#0e0e0e;">
   <!-- Deep bottom fade -->
-  <div class="absolute inset-0 pointer-events-none z-10" style="background: linear-gradient(to top, #0e0e0e 0%, #0e0e0e 22%, rgba(14,14,14,0.7) 45%, rgba(14,14,14,0.15) 68%, transparent 88%);"></div>
+  <div class="absolute inset-0 pointer-events-none z-10" style="background: linear-gradient(to top, #0e0e0e 0%, rgba(14,14,14,0.6) 35%, transparent 70%);"></div>
   <!-- Radial vignette -->
-  <div class="absolute inset-0 pointer-events-none z-10" style="background: radial-gradient(ellipse 90% 80% at 50% 45%, transparent 35%, rgba(14,14,14,0.45) 72%, #0e0e0e 100%);"></div>
+  <div class="absolute inset-0 pointer-events-none z-10" style=""></div>
   <img id="checkout-product-img" alt="Product"
-       class="w-full h-full object-cover animate-float"
+       class="w-full h-full object-contain animate-float"
        style="object-position: center center; filter: brightness(0.85) contrast(1.05) saturate(0.9);"
        src="product1.webp"/>
   <!-- Product name overlay (top-4) -->
