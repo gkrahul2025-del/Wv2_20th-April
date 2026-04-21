@@ -1,0 +1,142 @@
+[
+  {
+    "ts": "2026-04-20T16:52:34.850Z",
+    "orderId": "SRX1776342648571",
+    "stage": "packed",
+    "buyerName": "ram",
+    "phone": "2342436474",
+    "email": "gkrahul2025@gmail.com",
+    "channel": "email",
+    "status": "sent"
+  },
+  {
+    "ts": "2026-04-20T16:54:08.518Z",
+    "orderId": "SRX1776342648571",
+    "stage": "shipped",
+    "buyerName": "ram",
+    "phone": "2342436474",
+    "email": "gkrahul2025@gmail.com",
+    "channel": "email",
+    "status": "sent"
+  },
+  {
+    "ts": "2026-04-20T16:54:11.462Z",
+    "orderId": "SRX1776342648571",
+    "stage": "shipped",
+    "buyerName": "ram",
+    "phone": "2342436474",
+    "email": "gkrahul2025@gmail.com",
+    "channel": "whatsapp",
+    "status": "generated"
+  },
+  {
+    "ts": "2026-04-20T16:54:59.459Z",
+    "orderId": "SRX1776342648571",
+    "stage": "delivered",
+    "buyerName": "ram",
+    "phone": "2342436474",
+    "email": "gkrahul2025@gmail.com",
+    "channel": "email",
+    "status": "sent"
+  },
+  {
+    "ts": "2026-04-20T16:55:20.208Z",
+    "orderId": "SRX1776342648571",
+    "stage": "feedback",
+    "buyerName": "ram",
+    "phone": "2342436474",
+    "email": "gkrahul2025@gmail.com",
+    "channel": "email",
+    "status": "sent"
+  },
+  {
+    "ts": "2026-04-20T16:56:22.977Z",
+    "orderId": "SRX1776107240320",
+    "stage": "broadcast",
+    "buyerName": "Rahul Patil",
+    "phone": "2342436474",
+    "email": "rahul.patil01@gameskraft.com",
+    "channel": "email",
+    "status": "sent"
+  },
+  {
+    "ts": "2026-04-20T16:56:25.747Z",
+    "orderId": "SRX1776109582504",
+    "stage": "broadcast",
+    "buyerName": "Rahul Patil",
+    "phone": "1314421334",
+    "email": "rahul.patil01@gameskraft.com",
+    "channel": "email",
+    "status": "sent"
+  },
+  {
+    "ts": "2026-04-20T16:56:28.920Z",
+    "orderId": "SRX1776240842558",
+    "stage": "broadcast",
+    "buyerName": "wfw",
+    "phone": "1314421334",
+    "email": "wfw@gmai.co",
+    "channel": "email",
+    "status": "sent"
+  },
+  {
+    "ts": "2026-04-20T16:56:31.811Z",
+    "orderId": "SRX1776241455972",
+    "stage": "broadcast",
+    "buyerName": "fef",
+    "phone": "1314421334",
+    "email": "wfw@gmai.com",
+    "channel": "email",
+    "status": "sent"
+  },
+  {
+    "ts": "2026-04-20T16:56:34.879Z",
+    "orderId": "SRX1776252352438",
+    "stage": "broadcast",
+    "buyerName": "rp",
+    "phone": "1314421335",
+    "email": "sdf@gmail.com",
+    "channel": "email",
+    "status": "sent"
+  },
+  {
+    "ts": "2026-04-20T16:56:37.883Z",
+    "orderId": "SRX1776253306479",
+    "stage": "broadcast",
+    "buyerName": "rp",
+    "phone": "1314421335",
+    "email": "ryyr@gmail.com",
+    "channel": "email",
+    "status": "sent"
+  },
+  {
+    "ts": "2026-04-20T16:56:40.887Z",
+    "orderId": "SRX1776259737549",
+    "stage": "broadcast",
+    "buyerName": "fdgdh",
+    "phone": "1314421334",
+    "email": "rahul.patil01@gameskraft.com",
+    "channel": "email",
+    "status": "sent"
+  },
+  {
+    "ts": "2026-04-20T16:56:43.698Z",
+    "orderId": "SRX1776342648571",
+    "stage": "broadcast",
+    "buyerName": "ram",
+    "phone": "2342436474",
+    "email": "gkrahul2025@gmail.com",
+    "channel": "email",
+    "status": "sent"
+  },
+  {
+    "ts": "2026-04-20T17:21:08.687Z",
+    "orderId": "SRX1776259737549",
+    "stage": "packed",
+    "buyerName": "fdgdh",
+    "phone": "1314421334",
+    "email": "rahul.patil01@gameskraft.com",
+    "channel": "email",
+    "status": "sent"
+  }
+]
