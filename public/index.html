@@ -2,7 +2,7 @@
 <html class="dark" lang="en">
 <head>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" name="viewport"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&family=Manrope:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -203,13 +203,20 @@
 
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  html, body { overscroll-behavior: none; height: 100dvh; overflow-x: hidden; max-width: 100%; }
+  html, body { overscroll-behavior: none; height: var(--app-h, 100dvh); overflow: hidden; }
 
   /* ── Slider — prevent page scroll during swipe ── */
   #grab-slider, #slider-thumb { touch-action: none; }
 </style>
+<script>
+  // Lock app height once on load — prevents browser chrome show/hide causing layout shift
+  (function(){
+    var h = window.innerHeight;
+    document.documentElement.style.setProperty("--app-h", h + "px");
+  })();
+</script>
 </head>
-<body class="animated-bg text-on-background font-body w-full overflow-hidden flex flex-col relative" style="height:100dvh;">
+<body class="animated-bg text-on-background font-body w-full overflow-hidden flex flex-col relative" style="height:var(--app-h,100dvh);">
 
 <!-- ── Code-already-used popup ── -->
 <div id="reuse-popup" class="hidden fixed inset-0 z-[200] flex items-center justify-center px-6"
