@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SHRINKRAY × WABUY | Order Confirmed 🎉</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "surface-bright": "#2c2c2c", "inverse-primary": "#4f6700",
+          "primary-fixed": "#c5fe00", "surface-container-low": "#131313",
+          "secondary-container": "#626200", "on-primary-fixed": "#384b00",
+          "tertiary-container": "#fce34b", "surface-container-lowest": "#000000",
+          "on-error": "#450900", "primary": "#f3ffcd", "surface-tint": "#f3ffcd",
+          "error-container": "#b92902", "on-surface": "#ffffff",
+          "surface-container-high": "#201f1f", "primary-fixed-dim": "#b9ef00",
+          "primary-container": "#c5fe00", "secondary": "#e9e958",
+          "background": "#0e0e0e", "on-error-container": "#ffd2c8",
+          "on-background": "#ffffff", "inverse-on-surface": "#565555",
+          "tertiary-dim": "#eed53e", "outline": "#767575",
+          "outline-variant": "#484847", "surface-container-highest": "#262626",
+          "surface": "#0e0e0e", "on-primary": "#4f6700",
+          "on-primary-container": "#485e00", "surface-variant": "#262626",
+          "on-secondary": "#555500", "error-dim": "#d53d18",
+          "on-tertiary-container": "#5d5200", "primary-dim": "#b9ef00",
+          "tertiary": "#fff1b2", "error": "#ff7351", "secondary-dim": "#dbdb4b",
+          "on-tertiary": "#675a00", "surface-container": "#1a1919",
+          "on-surface-variant": "#adaaaa", "surface-dim": "#0e0e0e",
+          "on-secondary-container": "#ffff6b",
+        },
+        borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" },
+        fontFamily: { "headline": ["Space Grotesk"], "body": ["Manrope"], "label": ["Space Grotesk"] }
+      },
+    },
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%       { transform: translateY(-8px) scale(1.015); }
+  }
+  .animate-float { animation: float 4s ease-in-out infinite; }
+
+  @keyframes pulse-glow {
+    0%, 100% { text-shadow: 0 0 10px rgba(197,254,0,0.4); }
+    50%       { text-shadow: 0 0 25px rgba(197,254,0,0.8); }
+  }
+  .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+
+  @keyframes slide-down {
+    0%        { transform: translateY(-100%); opacity: 0; }
+    10%, 90%  { transform: translateY(0);     opacity: 1; }
+    100%      { transform: translateY(-100%); opacity: 0; }
+  }
+  .notification-toast { animation: slide-down 5s ease-in-out forwards; }
+
+  @keyframes slideIn { from { transform: translateY(-24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .animate-slide-in { animation: slideIn 0.55s ease-out forwards; }
+
+  @keyframes pop-in {
+    0%   { transform: scale(0.3); opacity: 0; }
+    65%  { transform: scale(1.18); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .animate-pop-in { animation: pop-in 0.65s cubic-bezier(0.34,1.56,0.64,1) 0.2s both; }
+
+  @keyframes text-pop {
+    0%   { transform: translateY(20px) scale(0.9); opacity: 0; }
+    60%  { transform: translateY(-4px) scale(1.02); }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
+  .text-pop { animation: text-pop 0.7s cubic-bezier(0.34,1.56,0.64,1) 0.1s both; }
+
+  /* Go Back Live — glass breathe glow */
+  @keyframes live-breathe {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(197,254,0,0.1), inset 0 0 20px rgba(197,254,0,0.03);
+      border-color: rgba(197,254,0,0.22);
+    }
+    50% {
+      box-shadow: 0 0 48px rgba(197,254,0,0.28), inset 0 0 28px rgba(197,254,0,0.07);
+      border-color: rgba(197,254,0,0.55);
+    }
+  }
+  .btn-live { animation: live-breathe 3s ease-in-out infinite; }
+
+  @keyframes ring-expand {
+    0%   { transform: scale(1); opacity: 0.45; }
+    80%  { transform: scale(1.07); opacity: 0; }
+    100% { transform: scale(1.07); opacity: 0; }
+  }
+  .ring-expand { animation: ring-expand 3s ease-out infinite; }
+
+  /* Fun message fade */
+  .msg-fade { transition: opacity 0.35s ease; }
+
+  /* Confetti */
+  @keyframes confetti-fall {
+    0%   { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(80px)  rotate(540deg); opacity: 0; }
+  }
+  .confetti { position: absolute; width: 7px; height: 7px; border-radius: 1px; }
+  .confetti-wrap { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 5; }
+
+  .glass-panel { background: rgba(38,38,38,0.7); backdrop-filter: blur(20px); }
+  .step-conn { flex:1; height:1px; max-width:20px; }
+
+  html, body { overscroll-behavior: none; }
+  .btn-primary {
+    background: linear-gradient(135deg, #c5fe00 0%, #a8d600 100%);
+    box-shadow: 0 10px 30px -10px rgba(197,254,0,0.5);
+  }
+  .btn-primary:active { transform: scale(0.97); }
+</style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary-container selection:text-on-primary-container" style="min-height:100dvh;display:flex;flex-direction:column;">
+
+<!-- Notification toast -->
+<div class="fixed top-20 left-0 right-0 z-50 flex justify-center pointer-events-none px-6">
+  <div class="notification-toast glass-panel border border-primary-container/20 px-4 py-2 rounded-full flex items-center gap-2 shadow-2xl">
+    <span class="text-[10px] text-primary-container material-symbols-outlined" style="font-variation-settings:'FILL' 1;">celebration</span>
+    <p class="text-[10px] font-label uppercase tracking-wider text-on-surface" id="toast-text">
+      <span id="toast-name" class="text-primary-container font-bold">You</span>
+      from <span id="toast-city" class="text-primary-container font-bold">your city</span>
+      just locked in 🎉
+    </p>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="fixed top-0 w-full z-50 bg-[#0e0e0e]/70 backdrop-blur-xl px-6 flex flex-col justify-center" style="height:72px;">
+  <div class="flex justify-between items-center">
+    <div class="w-8"></div>
+    <div class="flex flex-col items-center">
+      <h1 class="text-[11px] font-black tracking-[0.2em] text-primary font-headline uppercase leading-none">SHRINKRAY × WABUY</h1>
+      <div class="flex items-center gap-1.5 mt-0.5">
+        <span class="w-1.5 h-1.5 bg-error rounded-full animate-pulse"></span>
+        <span class="text-[8px] font-label uppercase tracking-widest text-on-surface-variant/70" id="viewer-count">12.4K watching</span>
+      </div>
+    </div>
+    <div class="w-8 flex justify-end">
+      <span class="material-symbols-outlined text-primary-container/70" style="font-size:16px;font-variation-settings:'FILL' 1;">verified</span>
+    </div>
+  </div>
+  <!-- Step stepper — all complete -->
+  <div class="flex items-center justify-center gap-1 pt-1.5">
+    <div class="flex items-center gap-1">
+      <span class="material-symbols-outlined text-primary-container/60" style="font-size:9px;font-variation-settings:'FILL' 1;">check_circle</span>
+      <span class="text-[7px] font-label uppercase tracking-wide text-primary-container/60">Locked</span>
+    </div>
+    <div class="step-conn bg-primary-container/40"></div>
+    <div class="flex items-center gap-1">
+      <span class="material-symbols-outlined text-primary-container/60" style="font-size:9px;font-variation-settings:'FILL' 1;">check_circle</span>
+      <span class="text-[7px] font-label uppercase tracking-wide text-primary-container/60">Details</span>
+    </div>
+    <div class="step-conn bg-primary-container/40"></div>
+    <div class="flex items-center gap-1">
+      <span class="material-symbols-outlined text-primary-container/60" style="font-size:9px;font-variation-settings:'FILL' 1;">check_circle</span>
+      <span class="text-[7px] font-label uppercase tracking-wide text-primary-container/60">Address</span>
+    </div>
+    <div class="step-conn bg-primary-container/40"></div>
+    <div class="flex items-center gap-1">
+      <span class="material-symbols-outlined text-primary-container" style="font-size:9px;font-variation-settings:'FILL' 1;">check_circle</span>
+      <span class="text-[7px] font-label uppercase tracking-wide text-primary-container font-bold">Done</span>
+    </div>
+  </div>
+</header>
+
+<!-- Main -->
+<main class="flex-grow flex flex-col items-center pb-28 lg:pb-12 max-w-lg lg:max-w-4xl mx-auto w-full">
+
+  <!-- ── Hero: product image with ORDER LOCKED IN overlaid ── -->
+  <div class="relative w-full mt-[72px] mb-4">
+    <div class="confetti-wrap" id="confetti-container"></div>
+    <div class="relative w-full h-52 lg:h-[340px] overflow-hidden animate-float">
+      <img alt="Product" id="conf-hero-img" class="w-full h-full object-cover" src="product1.webp"/>
+      <div class="absolute inset-0" style="background:linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.35) 50%, transparent 100%);"></div>
+      <!-- Checkmark badge -->
+      <div class="absolute top-3 right-4 animate-pop-in">
+        <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center"
+             style="box-shadow:0 0 20px rgba(197,254,0,0.6);">
+          <span class="material-symbols-outlined text-xl text-on-primary-container" style="font-variation-settings:'FILL' 1;">check</span>
+        </div>
+      </div>
+      <!-- ORDER LOCKED IN -->
+      <div class="absolute bottom-0 left-0 right-0 px-5 pb-4 text-pop text-center">
+        <p class="text-[9px] font-black font-label uppercase tracking-[0.35em] text-primary-container/80 mb-1">Order Confirmed 🎉</p>
+        <h2 class="font-headline font-black text-2xl uppercase leading-tight"
+            style="letter-spacing:-0.01em;text-shadow:0 0 30px rgba(197,254,0,0.25),0 2px 16px rgba(0,0,0,0.9);">
+          <span style="color:#c5fe00;">ORDER</span> <span class="text-white">LOCKED IN</span>
+        </h2>
+        <p class="text-white/50 text-[11px] mt-1">
+          You're all set, <span class="text-primary-container/90 font-bold" id="buyer-name">friend</span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="w-full px-5 lg:px-8">
+    <div class="lg:grid lg:grid-cols-2 lg:gap-8 lg:items-start">
+    <!-- Left column: order card -->
+    <div>
+    <!-- ── Order details card ── -->
+    <div class="w-full glass-panel border border-outline-variant/20 rounded-2xl overflow-hidden mb-3 animate-slide-in">
+
+      <!-- Card header: Order ID + status -->
+      <div class="flex items-center justify-between px-4 py-3 border-b border-outline-variant/10">
+        <div>
+          <p class="text-[9px] font-label uppercase tracking-[0.2em] text-on-surface-variant/60 mb-0.5">Order ID</p>
+          <p class="font-headline font-bold text-xs text-white" id="order-id">SRX···</p>
+        </div>
+        <div class="flex items-center gap-1 bg-primary-container/10 border border-primary-container/25 rounded-full px-2.5 py-1">
+          <span class="material-symbols-outlined text-primary-container" style="font-size:12px;font-variation-settings:'FILL' 1;">check_circle</span>
+          <span class="text-[9px] font-black font-label uppercase tracking-wider text-primary-container" id="payment-status">PAID</span>
+        </div>
+      </div>
+
+      <!-- Product row -->
+      <div class="flex items-center gap-3 px-4 py-3 border-b border-outline-variant/10">
+        <div class="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container-high">
+          <img alt="Product thumb" id="conf-thumb-img" class="w-full h-full object-cover" src="product1.webp"/>
+        </div>
+        <div class="flex-grow min-w-0">
+          <p class="font-headline font-bold text-xs text-white uppercase truncate" id="conf-product-name">Product</p>
+          <p class="text-on-surface-variant/60 text-[10px] mt-0.5">Qty: <span class="text-white font-bold" id="order-qty">1</span></p>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p class="font-headline font-black text-base text-primary-container" id="order-total">₹1,299</p>
+          <p class="text-on-surface-variant/50 text-[9px]">incl. taxes</p>
+        </div>
+      </div>
+
+      <!-- Shipping address -->
+      <div class="px-4 py-3 border-b border-outline-variant/10">
+        <div class="flex items-start gap-2.5">
+          <span class="material-symbols-outlined text-primary-container/70 flex-shrink-0 mt-0.5" style="font-size:14px;font-variation-settings:'FILL' 1;">location_on</span>
+          <div class="min-w-0">
+            <p class="text-[9px] font-label uppercase tracking-[0.2em] text-on-surface-variant/60 mb-0.5">Shipping To</p>
+            <p class="text-white text-xs font-medium leading-snug" id="ship-address">—</p>
+            <p class="text-on-surface-variant/60 text-[10px] mt-0.5" id="ship-city-pin">—</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delivery -->
+      <div class="px-4 py-3">
+        <div class="flex items-center gap-2.5">
+          <span class="material-symbols-outlined text-primary-container/70 flex-shrink-0" style="font-size:14px;font-variation-settings:'FILL' 1;">local_shipping</span>
+          <div>
+            <p class="text-[9px] font-label uppercase tracking-[0.2em] text-on-surface-variant/60 mb-0.5">Delivery</p>
+            <p class="text-white text-xs font-medium">To be delivered soon · <span class="text-primary-container font-bold">Same day dispatch ⚡</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    </div><!-- /order card -->
+    </div><!-- /left column -->
+
+    <!-- Right column: receipt + trust + fun message -->
+    <div>
+    <!-- Razorpay payment reference (shown only when present) -->
+    <div id="payment-ref-row" class="hidden w-full mb-3">
+      <div class="glass-panel border border-outline-variant/20 rounded-2xl px-4 py-3 flex items-center gap-2.5">
+        <span class="material-symbols-outlined text-primary-container/70 flex-shrink-0" style="font-size:14px;">receipt</span>
+        <div>
+          <p class="text-[9px] font-label uppercase tracking-[0.2em] text-on-surface-variant/60 mb-0.5">Payment Reference</p>
+          <p class="font-headline font-bold text-xs text-white" id="payment-id">—</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Receipt sent -->
+    <div class="w-full glass-panel border border-outline-variant/20 rounded-2xl px-4 py-3 mb-3">
+      <div class="flex items-center gap-2 mb-1.5">
+        <span class="material-symbols-outlined text-primary-container/70" style="font-size:13px;font-variation-settings:'FILL' 1;">mark_email_read</span>
+        <p class="text-[9px] font-label uppercase tracking-[0.2em] text-on-surface-variant/60">Receipt</p>
+      </div>
+      <p class="text-white text-xs font-medium mb-2.5">Order receipt will be sent to your <span class="font-bold">WhatsApp &amp; email</span></p>
+      <div class="flex gap-2">
+        <div class="flex items-center gap-1.5 bg-surface-container border border-outline-variant/20 rounded-full px-3 py-1.5">
+          <span class="material-symbols-outlined flex-shrink-0" style="font-size:12px;font-variation-settings:'FILL' 1;color:#25D366;">chat</span>
+          <span class="text-[9px] text-white font-black font-label uppercase tracking-wide">WhatsApp</span>
+        </div>
+        <div class="flex items-center gap-1.5 bg-surface-container border border-outline-variant/20 rounded-full px-3 py-1.5">
+          <span class="material-symbols-outlined text-primary-container flex-shrink-0" style="font-size:12px;font-variation-settings:'FILL' 1;">mail</span>
+          <span class="text-[9px] text-white font-black font-label uppercase tracking-wide">Email</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fun rotating message -->
+    <div class="w-full glass-panel border border-outline-variant/10 rounded-2xl px-4 py-2.5 mb-3 text-center">
+      <p class="text-[10px] text-on-surface-variant/60 font-medium msg-fade" id="fun-msg">
+        Someone from your city might grab the next live drop... go check it now 👀
+      </p>
+    </div>
+
+    <!-- Trust row -->
+    <div class="w-full flex items-center justify-center gap-5 text-on-surface-variant/25 pb-2">
+      <span class="text-[8px] font-bold uppercase tracking-widest">Verified Seller</span>
+      <span class="text-[8px] font-bold uppercase tracking-widest">Encrypted</span>
+      <span class="text-[8px] font-bold uppercase tracking-widest">PCI-DSS</span>
+    </div>
+
+    </div><!-- /right column -->
+    </div><!-- /lg:grid -->
+    </div><!-- /px-6/px-8 -->
+</main>
+
+<!-- Fixed footer — mobile only -->
+<footer class="fixed bottom-0 left-0 right-0 z-40 px-6 pb-8 pt-4 bg-gradient-to-t from-background via-background/90 to-transparent lg:hidden">
+  <div class="relative w-full">
+    <!-- Expanding ring -->
+    <div class="ring-expand absolute inset-0 rounded-full pointer-events-none"
+         style="border:1px solid rgba(197,254,0,0.25);"></div>
+    <!-- Button -->
+    <a href="index.html"
+       class="btn-live w-full h-14 rounded-full flex items-center justify-center gap-3 relative"
+       style="background:rgba(197,254,0,0.07);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(197,254,0,0.25);text-decoration:none;">
+      <span class="w-2 h-2 rounded-full flex-shrink-0"
+            style="background:#ff7351;box-shadow:0 0 7px rgba(255,115,81,0.9);animation:pulse 1.4s ease-in-out infinite;"></span>
+      <span class="font-headline font-black text-sm uppercase tracking-[0.22em]" style="color:#c5fe00;">Go Back Live</span>
+      <span class="material-symbols-outlined text-base" style="color:rgba(197,254,0,0.7);font-variation-settings:'FILL' 1;font-size:17px;">sensors</span>
+    </a>
+  </div>
+</footer>
+
+<script>
+  function getUid() {
+    let uid = localStorage.getItem('srx_uid');
+    if (!uid) { uid = Math.random().toString(36).slice(2,9) + Date.now().toString(36); localStorage.setItem('srx_uid', uid); }
+    return uid;
+  }
+  function track(event, data) {
+    fetch('/webhook/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event, sid: getUid(), ...(data || {}) })
+    }).catch(() => {});
+  }
+
+  const STORAGE_KEY = 'srx_order_submitted';
+  const params  = new URLSearchParams(window.location.search);
+  const isTest  = params.get('test') === '1';
+
+  // ── Inject demo data in test/preview mode ──
+  if (isTest && !sessionStorage.getItem(STORAGE_KEY)) {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+      name: 'Priya Sharma', city: 'Bengaluru', state: 'Karnataka',
+      address: '42 MG Road, Indiranagar', pincode: '560038',
+      qty: 2, totalPrice: 8998, orderId: 'SRX' + Date.now(),
+    }));
+    if (!sessionStorage.getItem('srx_product')) {
+      sessionStorage.setItem('srx_product', JSON.stringify({ title: 'Stone Chariot of Hampi', img: 'product1.webp' }));
+    }
+  }
+
+  const stored  = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '{}');
+
+  // ── Order data ──
+  const name       = stored.name       || params.get('name') || 'Valued Customer';
+  const city       = stored.city       || '';
+  const state      = stored.state      || '';
+  const address    = stored.address    || '';
+  const pincode    = stored.pincode    || '';
+  const qty        = parseInt(stored.qty)        || 1;
+  const totalPrice = parseInt(stored.totalPrice) || parseInt(stored.price) || 1299;
+  const orderId    = stored.orderId    || ('SRX' + Date.now());
+
+  // ── Razorpay params (appended by Razorpay after real payment) ──
+  const paymentId     = params.get('razorpay_payment_id')          || '';
+  const paymentStatus = params.get('razorpay_payment_link_status') || '';
+
+  // ── Notify server to mark Sheet row as PAID (runs once per confirmed payment) ──
+  if (paymentStatus === 'paid' && orderId && !sessionStorage.getItem('srx_confirmed_' + orderId)) {
+    sessionStorage.setItem('srx_confirmed_' + orderId, '1');
+    setTimeout(() => {
+      fetch('/webhook/payment-confirmed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId, paymentId, sid: getUid() }),
+      }).catch(() => {});
+    }, 7000);
+  } else if (paymentStatus && paymentStatus !== 'paid') {
+    track('payment_cancelled', { orderId, status: paymentStatus });
+  }
+
+  // ── Product hydration from sessionStorage ──
+  const _confProd = JSON.parse(sessionStorage.getItem('srx_product') || '{}');
+  if (_confProd.img)   { document.getElementById('conf-hero-img').src  = _confProd.img; document.getElementById('conf-thumb-img').src = _confProd.img; }
+  if (_confProd.title) { document.getElementById('conf-product-name').textContent = _confProd.title; }
+
+  // ── Populate UI ──
+  document.getElementById('buyer-name').textContent  = name;
+  document.getElementById('order-id').textContent    = orderId;
+  document.getElementById('order-qty').textContent   = qty;
+  document.getElementById('order-total').textContent = '₹' + totalPrice.toLocaleString('en-IN');
+
+  // Payment status badge
+  if (isTest) {
+    document.getElementById('payment-status').textContent = 'TEST MODE';
+  } else if (paymentStatus === 'paid') {
+    document.getElementById('payment-status').textContent = 'PAID';
+  } else if (paymentStatus) {
+    document.getElementById('payment-status').textContent = paymentStatus.toUpperCase();
+  }
+
+  // Razorpay ref row
+  if (paymentId) {
+    document.getElementById('payment-id').textContent = paymentId;
+    document.getElementById('payment-ref-row').classList.remove('hidden');
+  }
+
+  // Shipping address
+  if (address) document.getElementById('ship-address').textContent = address;
+  if (city || pincode) {
+    document.getElementById('ship-city-pin').textContent =
+      [city, state].filter(Boolean).join(', ') + (pincode ? ' – ' + pincode : '');
+  }
+
+  // Toast — mask name (e.g. "Rahul Patil" → "Rxxl Pxxl") to preserve privacy
+  function maskName(n) {
+    if (!n || n.length < 3) return n || 'Someone';
+    return n.trim().split(' ').map(p =>
+      p.length <= 2 ? p : p[0] + 'xx' + p[p.length - 1]
+    ).join(' ');
+  }
+  const productLabel = (_confProd.title || 'this piece').split(' ').slice(0,3).join(' ');
+  if (name && city) {
+    document.getElementById('toast-name').textContent = maskName(name);
+    document.getElementById('toast-city').textContent = city;
+  }
+
+  // ── Viewer count ──
+  let viewers = 1800;
+  function updateViewers() {
+    const delta = Math.floor(Math.random() * 300) - 120;
+    viewers = Math.max(1000, Math.min(3000, viewers + delta));
+    document.getElementById('viewer-count').textContent =
+      (viewers >= 1000 ? (viewers / 1000).toFixed(1) + 'K' : viewers) + ' watching';
+  }
+  setInterval(updateViewers, 1200);
+
+  // ── Fun rotating messages ──
+  const FUN_MSGS = [
+    `Someone from your city might grab the next live drop... go check it now 👀`,
+    `The live is still dropping deals! Don't let your friends miss out 🔥`,
+    `You just beat hundreds of others to this piece. Legend behaviour 🏆`,
+    `Your hoodie is already being packed... the live is still going! 🎬`,
+    `Quick! Your crew might still be in time for the next drop 🚀`,
+    `Pro tip: the next live code is dropping any minute. Stay tuned ⚡`,
+    `Orders are flying — your city is going crazy for this drop 🌪️`,
+    `You locked it in. Now go tell a friend before it's gone 📢`,
+    `The next drop could be even more fire — go back and watch! 🔴`,
+    `Someone's scrolling the live right now looking for this exact piece... 👁️`,
+  ];
+  const msgEl = document.getElementById('fun-msg');
+  let msgIdx  = Math.floor(Math.random() * FUN_MSGS.length);
+  msgEl.textContent = FUN_MSGS[msgIdx];
+  setInterval(() => {
+    msgEl.style.opacity = '0';
+    setTimeout(() => {
+      msgIdx = (msgIdx + 1) % FUN_MSGS.length;
+      msgEl.textContent = FUN_MSGS[msgIdx];
+      msgEl.style.opacity = '1';
+    }, 350);
+  }, 4500);
+
+  // ── Confetti burst ──
+  const COLORS = ['#c5fe00', '#ffffff', '#ff7351', '#e9e958', '#fff1b2', '#b9ef00'];
+  const container = document.getElementById('confetti-container');
+  for (let i = 0; i < 32; i++) {
+    const el    = document.createElement('div');
+    el.className = 'confetti';
+    const x     = Math.random() * 100;
+    const delay = Math.random() * 1.5;
+    const dur   = 1.4 + Math.random() * 1.6;
+    const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    const rot   = Math.random() > 0.5 ? 'rotate(45deg)' : 'none';
+    el.style.cssText = `left:${x}%;top:15%;background:${color};transform:${rot};
+      animation:confetti-fall ${dur}s ease-in ${delay}s forwards;`;
+    container.appendChild(el);
+  }
+</script>
+</body></html>

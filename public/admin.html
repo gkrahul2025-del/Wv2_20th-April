@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SHRINKRAY | Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary-container": "#c5fe00", "on-primary-container": "#1a2200",
+        "primary": "#f3ffcd", "background": "#0e0e0e", "surface": "#0e0e0e",
+        "surface-container": "#1a1919", "surface-container-high": "#201f1f",
+        "surface-container-highest": "#262626", "on-surface": "#ffffff",
+        "on-surface-variant": "#adaaaa", "outline": "#767575", "outline-variant": "#484847",
+        "error": "#ff7351",
+      },
+      fontFamily: { "headline": ["Space Grotesk"], "body": ["Manrope"], "label": ["Space Grotesk"] },
+    },
+  },
+}
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  body { font-family: 'Manrope', sans-serif; background: #0e0e0e; color: #fff; min-height: 100dvh; }
+  .glass-panel { background: rgba(38,38,38,0.7); backdrop-filter: blur(20px); }
+  .live-dot { width: 10px; height: 10px; border-radius: 50%; animation: pulse-dot 1.5s ease-in-out infinite; }
+  .live-dot.on  { background: #c5fe00; box-shadow: 0 0 0 0 rgba(197,254,0,0.7); }
+  .live-dot.off { background: #767575; animation: none; }
+  @keyframes pulse-dot {
+    0%,100% { box-shadow: 0 0 0 0 rgba(197,254,0,0.7); }
+    50%      { box-shadow: 0 0 0 8px rgba(197,254,0,0); }
+  }
+  .admin-btn {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%; padding: 16px 20px;
+    border-radius: 1rem; border: 1px solid rgba(72,72,71,0.5);
+    background: rgba(38,38,38,0.6); backdrop-filter: blur(10px);
+    font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+    font-size: 0.9rem; letter-spacing: 0.05em; text-transform: uppercase;
+    cursor: pointer; transition: all .25s ease; text-decoration: none; color: #fff;
+  }
+  .admin-btn:hover { transform: translateY(-2px); border-color: rgba(197,254,0,0.4); background: rgba(50,50,50,0.8); }
+  .admin-btn .btn-icon { color: #c5fe00; font-size: 1.4rem; flex-shrink: 0; }
+  .admin-btn .btn-label { flex-grow: 1; text-align: left; }
+  .admin-btn .btn-arrow { color: #767575; font-size: 1.1rem; }
+  .section-label {
+    font-family: 'Space Grotesk', sans-serif; font-size: 0.65rem; font-weight: 800;
+    letter-spacing: 0.3em; text-transform: uppercase; color: #767575;
+    margin-bottom: 10px; padding-left: 4px;
+  }
+  #live-toggle-btn.state-on  { border-color: rgba(197,254,0,0.5); background: rgba(197,254,0,0.08); }
+  #live-toggle-btn.state-off { border-color: rgba(118,118,117,0.4); }
+
+  /* Product accordion */
+  .prod-card {
+    border-radius: 1rem; border: 1px solid rgba(72,72,71,0.5);
+    background: rgba(38,38,38,0.6); backdrop-filter: blur(10px);
+    overflow: hidden;
+  }
+  .prod-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px; cursor: pointer;
+    transition: background .2s;
+  }
+  .prod-header:hover { background: rgba(50,50,50,0.6); }
+  .prod-body {
+    max-height: 0; overflow: hidden;
+    transition: max-height .35s cubic-bezier(.4,0,.2,1), padding .35s;
+    padding: 0 16px;
+  }
+  .prod-body.open { max-height: 200px; padding: 0 16px 14px; }
+  .prod-chevron { transition: transform .3s; color: #767575; font-size: 18px; flex-shrink: 0; }
+  .prod-chevron.open { transform: rotate(180deg); }
+
+  /* Auth gate */
+  #auth-gate { position:fixed; inset:0; z-index:100; background:#0e0e0e; display:flex; align-items:center; justify-content:center; padding:24px; }
+  #auth-gate input { width:100%; background:rgba(38,38,38,0.8); border:1px solid rgba(72,72,71,0.5); border-radius:10px; padding:12px 16px; color:#fff; font-family:'Space Grotesk',sans-serif; font-size:14px; outline:none; margin-bottom:10px; }
+  #auth-gate input:focus { border-color:rgba(197,254,0,0.4); }
+  #auth-gate .auth-submit { width:100%; background:linear-gradient(135deg,#c5fe00,#a8d600); border-radius:10px; padding:12px; font-family:'Space Grotesk',sans-serif; font-weight:900; font-size:13px; letter-spacing:0.1em; text-transform:uppercase; color:#1a2200; cursor:pointer; border:none; }
+  #auth-gate .auth-submit:active { opacity:0.85; }
+  #toggle-loading { display:none; width:16px; height:16px; border:2px solid rgba(197,254,0,0.2); border-top-color:#c5fe00; border-radius:50%; animation:spin .7s linear infinite; flex-shrink:0; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* Large collapsible bodies (comms + download) */
+  #comms-body.open, #dl-body.open { max-height: 3000px !important; padding: 0 16px 16px !important; }
+
+  /* Shared tab pill */
+  .c-tab {
+    flex:1; padding:7px 0; border-radius:8px;
+    font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:800;
+    letter-spacing:0.06em; text-transform:uppercase; cursor:pointer;
+    border:1px solid rgba(72,72,71,0.5); background:transparent; color:#767575;
+    transition:all .2s;
+  }
+  .c-tab.active { background:rgba(197,254,0,0.1); border-color:rgba(197,254,0,0.35); color:#c5fe00; }
+  .sub-label {
+    font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:800;
+    letter-spacing:0.2em; text-transform:uppercase; color:rgba(173,170,170,0.55);
+    margin-bottom:8px; display:block;
+  }
+
+  /* Text inputs */
+  .c-input {
+    width:100%; background:rgba(38,38,38,0.8); border:1px solid rgba(72,72,71,0.5);
+    border-radius:10px; padding:10px 14px; color:#fff;
+    font-family:'Space Grotesk',sans-serif; font-size:12px; outline:none; box-sizing:border-box;
+  }
+  .c-input:focus { border-color:rgba(197,254,0,0.35); }
+  .c-input::placeholder { color:#767575; }
+
+  /* Order stage badge */
+  .stage-badge {
+    flex-shrink:0; margin-left:8px; font-family:'Space Grotesk',sans-serif;
+    font-size:9px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase;
+    padding:3px 8px; border-radius:99px;
+  }
+  #ship-order-preview {
+    background:rgba(197,254,0,0.04); border:1px solid rgba(197,254,0,0.15);
+    border-radius:10px; padding:10px 14px; margin-bottom:14px;
+  }
+  #ship-msg-preview {
+    background:rgba(26,25,25,0.9); border:1px solid rgba(72,72,71,0.4);
+    border-radius:10px; padding:12px 14px; font-size:11px; line-height:1.75;
+    white-space:pre-wrap; color:#e0e0e0; margin-bottom:10px;
+    font-family:'Manrope',sans-serif;
+  }
+</style>
+</head>
+<body>
+
+<div class="max-w-md mx-auto px-5 pb-16 pt-10">
+
+  <!-- Header -->
+  <div class="flex items-center gap-3 mb-8">
+    <img src="logo.jpg" alt="Logo" class="w-9 h-9 rounded-full object-cover"/>
+    <div>
+      <p class="font-headline font-black text-lg text-white uppercase tracking-wide leading-none">Shrinkray</p>
+      <p class="text-[10px] font-label font-bold uppercase tracking-[0.25em] text-on-surface-variant">Admin Panel</p>
+    </div>
+  </div>
+
+  <!-- Live Status Card -->
+  <div class="glass-panel rounded-[1.5rem] border border-outline-variant/30 p-5 mb-7">
+    <p class="section-label">Live Status</p>
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="live-dot off" id="status-dot"></div>
+        <div>
+          <p class="font-headline font-black text-base text-white uppercase" id="status-text">Checking...</p>
+          <p class="text-xs text-on-surface-variant mt-0.5" id="status-sub">—</p>
+        </div>
+      </div>
+      <div id="status-badge"
+           class="text-[10px] font-black font-label uppercase tracking-wider px-3 py-1.5 rounded-full border"
+           style="display:none;">
+      </div>
+    </div>
+
+    <!-- Toggle button -->
+    <button id="live-toggle-btn" class="admin-btn mt-4 state-off" onclick="toggleLive()">
+      <span class="material-symbols-outlined btn-icon" id="toggle-icon">toggle_off</span>
+      <span class="btn-label" id="toggle-label">Turn Live ON</span>
+      <span class="text-[10px] font-label font-bold text-on-surface-variant" id="toggle-sub">catalogue gate opens</span>
+      <div id="toggle-loading"></div>
+    </button>
+  </div>
+
+  <!-- Product Links + Codes (combined accordion) -->
+  <div class="mb-7">
+    <p class="section-label">Products — Links &amp; Codes</p>
+    <div id="product-links" class="flex flex-col gap-3">
+      <!-- Injected by JS -->
+    </div>
+  </div>
+
+  <!-- Data -->
+  <div class="mb-7">
+    <p class="section-label">Data</p>
+    <div class="flex flex-col gap-3">
+      <a class="admin-btn" href="https://docs.google.com/spreadsheets" target="_blank">
+        <span class="material-symbols-outlined btn-icon" style="font-variation-settings:'FILL' 1;">table_chart</span>
+        <span class="btn-label">View Orders Sheet</span>
+        <span class="material-symbols-outlined btn-arrow">open_in_new</span>
+      </a>
+      <a class="admin-btn" id="analytics-link" href="#" target="_blank">
+        <span class="material-symbols-outlined btn-icon" style="font-variation-settings:'FILL' 1;">bar_chart</span>
+        <span class="btn-label">View Analytics</span>
+        <span class="material-symbols-outlined btn-arrow">open_in_new</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Preview Pages -->
+  <div class="mb-7">
+    <p class="section-label">Preview</p>
+    <div class="flex flex-col gap-3">
+      <a class="admin-btn" href="catalogue.html" target="_blank">
+        <span class="material-symbols-outlined btn-icon" style="font-variation-settings:'FILL' 1;">storefront</span>
+        <span class="btn-label">Open Catalogue</span>
+        <span class="material-symbols-outlined btn-arrow">open_in_new</span>
+      </a>
+      <a class="admin-btn" href="order-confirmation.html?test=1" target="_blank">
+        <span class="material-symbols-outlined btn-icon" style="font-variation-settings:'FILL' 1;">receipt_long</span>
+        <span class="btn-label">Preview Order Confirmation</span>
+        <span class="material-symbols-outlined btn-arrow">open_in_new</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Communications (collapsible) -->
+  <div class="mb-7">
+    <p class="section-label">Communications</p>
+    <div class="prod-card">
+      <div class="prod-header" onclick="toggleCommsSection()">
+        <span class="material-symbols-outlined" style="color:#c5fe00;font-size:20px;flex-shrink:0;font-variation-settings:'FILL' 1;">forum</span>
+        <div class="flex-grow overflow-hidden">
+          <p class="text-white text-sm font-bold">Email · WhatsApp · Broadcast</p>
+          <p class="text-on-surface-variant text-[10px]">Order updates &amp; campaigns</p>
+        </div>
+        <span class="material-symbols-outlined prod-chevron" id="comms-chev">expand_more</span>
+      </div>
+
+      <div class="prod-body" id="comms-body">
+
+        <!-- 3 tabs -->
+        <div class="flex gap-1.5 mb-5">
+          <button id="ctab-email"     class="c-tab active" onclick="switchCommsTab('email')">
+            <span class="material-symbols-outlined" style="font-size:13px;vertical-align:middle;margin-right:3px;">mail</span>Email
+          </button>
+          <button id="ctab-wa"        class="c-tab"        onclick="switchCommsTab('wa')">
+            <span style="font-size:12px;vertical-align:middle;margin-right:3px;">💬</span>WhatsApp
+          </button>
+          <button id="ctab-broadcast" class="c-tab"        onclick="switchCommsTab('broadcast')">
+            <span class="material-symbols-outlined" style="font-size:13px;vertical-align:middle;margin-right:3px;">campaign</span>Broadcast
+          </button>
+        </div>
+
+        <!-- ── EMAIL tab ── -->
+        <div id="comms-tab-email">
+          <p class="text-[10px] text-on-surface-variant/50 mb-3" style="line-height:1.6;">
+            Advance each order through its stage — email fires automatically to the buyer when you do.
+          </p>
+          <input class="c-input" id="ou-search" type="text" placeholder="Search paid orders…" oninput="filterPaidOrders()" style="margin-bottom:10px;"/>
+          <div id="ou-order-list"></div>
+          <p id="ou-empty" style="display:none;text-align:center;color:#767575;font-size:11px;font-family:'Space Grotesk';padding:16px 0;">No paid orders yet</p>
+
+          <!-- Comm Log -->
+          <div style="margin-top:14px;border-top:1px solid rgba(72,72,71,0.3);padding-top:12px;">
+            <button onclick="toggleCommLog()"
+                    style="width:100%;text-align:center;font-family:'Space Grotesk';font-size:10px;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;color:#767575;background:none;border:none;cursor:pointer;padding:4px 0;">
+              <span id="comm-log-toggle-label">View Comm Log ▾</span>
+            </button>
+            <div id="comm-log-body" style="display:none;margin-top:10px;">
+              <div id="comm-log-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── WHATSAPP tab ── -->
+        <div id="comms-tab-wa" style="display:none;">
+
+          <!-- Individual / Bulk -->
+          <div class="flex gap-2 mb-4">
+            <button id="wa-indiv-btn" class="c-tab active" onclick="switchWAView('indiv')">Individual</button>
+            <button id="wa-bulk-btn"  class="c-tab"        onclick="switchWAView('bulk')">Bulk</button>
+          </div>
+
+          <!-- Individual -->
+          <div id="wa-indiv">
+            <span class="sub-label">Select Order</span>
+            <input class="c-input" id="wa-search" type="text" placeholder="Name, phone or order ID…" oninput="filterWAOrders()" style="margin-bottom:8px;"/>
+            <div style="position:relative;margin-bottom:14px;">
+              <select class="c-input" id="wa-order-select" onchange="selectWAOrder(this.value)" style="padding-right:32px;-webkit-appearance:none;appearance:none;cursor:pointer;">
+                <option value="">— Select a paid order —</option>
+              </select>
+              <span class="material-symbols-outlined" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:16px;color:#767575;pointer-events:none;">expand_more</span>
+            </div>
+
+            <div id="wa-preview" style="display:none;">
+              <div style="background:rgba(26,25,25,0.95);border:1px solid rgba(72,72,71,0.4);border-radius:10px;padding:12px 14px;margin-bottom:10px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                  <div>
+                    <p id="wa-buyer-name" style="font-family:'Space Grotesk';font-weight:700;font-size:12px;color:#fff;margin:0;"></p>
+                    <p id="wa-buyer-detail" style="font-family:'Space Grotesk';font-size:10px;color:#767575;margin:0;"></p>
+                  </div>
+                  <span id="wa-stage-badge" class="stage-badge"></span>
+                </div>
+                <pre id="wa-msg-text" style="font-size:11px;line-height:1.75;color:#adaaaa;white-space:pre-wrap;margin:0;font-family:'Manrope';"></pre>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="copyWAMsg()" id="wa-copy-btn"
+                        style="flex:1;font-size:11px;padding:10px;border-radius:10px;border:1px solid rgba(197,254,0,0.3);background:rgba(197,254,0,0.07);color:#c5fe00;cursor:pointer;font-family:'Space Grotesk';font-weight:800;">
+                  Copy
+                </button>
+                <a id="wa-open-link" href="#" target="_blank"
+                   style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;padding:10px;border-radius:10px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;text-decoration:none;font-family:'Space Grotesk';font-weight:800;">
+                  <span class="material-symbols-outlined" style="font-size:15px;">open_in_new</span>Open WhatsApp
+                </a>
+              </div>
+            </div>
+            <p id="wa-empty" style="display:none;text-align:center;color:#767575;font-size:11px;font-family:'Space Grotesk';padding:10px 0;">No paid orders yet</p>
+          </div>
+
+          <!-- Bulk -->
+          <div id="wa-bulk" style="display:none;">
+            <span class="sub-label">Select Stage</span>
+            <div id="ou-bulk-stage-btns" class="flex flex-wrap gap-2 mb-4"></div>
+            <div id="ou-bulk-tracking-wrap" style="display:none;margin-bottom:10px;">
+              <span class="sub-label">Tracking URL (applied to all)</span>
+              <input class="c-input" id="ou-bulk-tracking-url" placeholder="Paste tracking link…" style="margin-bottom:4px;"/>
+              <p class="text-[10px] text-on-surface-variant/40 px-1">Used for all "Shipped" messages in this batch</p>
+            </div>
+            <button onclick="generateBulkOUWA()" class="admin-btn" style="justify-content:center;gap:10px;margin-bottom:10px;">
+              <span class="material-symbols-outlined btn-icon" style="font-variation-settings:'FILL' 1;">send</span>
+              <span class="btn-label" style="flex-grow:0;">Generate WA Messages</span>
+            </button>
+            <div id="ou-bulk-results"></div>
+          </div>
+        </div>
+
+        <!-- ── BROADCAST tab ── -->
+        <div id="comms-tab-broadcast" style="display:none;">
+
+          <!-- Audience -->
+          <span class="sub-label">Audience</span>
+          <div class="flex gap-2 mb-4">
+            <button id="baud-paid"    class="c-tab active" onclick="setBcastAud('paid')">Paid</button>
+            <button id="baud-nonpaid" class="c-tab"        onclick="setBcastAud('nonpaid')">Non-paid</button>
+            <button id="baud-all"     class="c-tab"        onclick="setBcastAud('all')">All</button>
+          </div>
+
+          <!-- Templates -->
+          <span class="sub-label">Quick Templates</span>
+          <div class="flex gap-2 mb-4">
+            <button onclick="setTemplate('prelive')"
+                    style="font-size:10px;padding:5px 12px;border-radius:8px;border:1px solid rgba(72,72,71,0.5);background:transparent;color:#adaaaa;cursor:pointer;font-family:'Space Grotesk';font-weight:700;">
+              Pre-live
+            </button>
+            <button onclick="setTemplate('retarget')"
+                    style="font-size:10px;padding:5px 12px;border-radius:8px;border:1px solid rgba(72,72,71,0.5);background:transparent;color:#adaaaa;cursor:pointer;font-family:'Space Grotesk';font-weight:700;">
+              Retarget
+            </button>
+          </div>
+
+          <!-- Message -->
+          <span class="sub-label">Message <span style="color:#555;font-weight:400;text-transform:none;letter-spacing:0;">— {name} = buyer's first name</span></span>
+          <textarea class="c-input" id="bcast-msg" rows="5"
+                    placeholder="Write your message…"
+                    style="height:auto;resize:vertical;line-height:1.6;margin-bottom:16px;"></textarea>
+
+          <!-- Email section -->
+          <div style="border:1px solid rgba(72,72,71,0.35);border-radius:12px;padding:14px;margin-bottom:12px;">
+            <span class="sub-label" style="margin-bottom:10px;">
+              <span class="material-symbols-outlined" style="font-size:12px;vertical-align:middle;margin-right:4px;">mail</span>Email
+            </span>
+            <button onclick="sendBroadcastEmails()" id="bcast-email-btn"
+                    class="admin-btn" style="justify-content:center;gap:10px;margin-bottom:8px;">
+              <span class="material-symbols-outlined btn-icon" style="font-variation-settings:'FILL' 1;">send</span>
+              <span class="btn-label" style="flex-grow:0;" id="bcast-email-label">Send to All</span>
+            </button>
+            <p id="bcast-email-status" style="display:none;font-family:'Space Grotesk';font-size:11px;text-align:center;"></p>
+          </div>
+
+          <!-- WhatsApp section -->
+          <div style="border:1px solid rgba(72,72,71,0.35);border-radius:12px;padding:14px;">
+            <span class="sub-label" style="margin-bottom:10px;">
+              <span style="font-size:12px;vertical-align:middle;margin-right:4px;">💬</span>WhatsApp
+            </span>
+            <p class="text-[10px] text-on-surface-variant/40 mb-3" style="line-height:1.6;">Generates individual links for each contact — you tap each to send manually.</p>
+            <button onclick="genBroadcastWA()"
+                    class="admin-btn" style="justify-content:center;gap:10px;margin-bottom:8px;border-color:#25D36640;background:#25D36615;color:#25D366;">
+              <span class="material-symbols-outlined btn-icon" style="color:#25D366;">send</span>
+              <span class="btn-label" style="flex-grow:0;color:#25D366;">Generate WA List</span>
+            </button>
+            <div id="bcast-wa-list"></div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Download Files (collapsible) -->
+  <div class="mb-7">
+    <p class="section-label">Download Files</p>
+    <div class="prod-card">
+      <div class="prod-header" onclick="toggleDLSection()">
+        <span class="material-symbols-outlined" style="color:#c5fe00;font-size:20px;flex-shrink:0;font-variation-settings:'FILL' 1;">download</span>
+        <div class="flex-grow overflow-hidden">
+          <p class="text-white text-sm font-bold">Export Data</p>
+          <p class="text-on-surface-variant text-[10px]">Orders, leads, comm log as CSV</p>
+        </div>
+        <span class="material-symbols-outlined prod-chevron" id="dl-chev">expand_more</span>
+      </div>
+      <div class="prod-body" id="dl-body">
+        <div class="flex flex-col gap-3">
+          <button onclick="dlCSV('paid')" class="admin-btn">
+            <span class="material-symbols-outlined btn-icon" style="font-variation-settings:'FILL' 1;">receipt_long</span>
+            <span class="btn-label">Paid Orders + Stages</span>
+            <span class="material-symbols-outlined btn-arrow">download</span>
+          </button>
+          <button onclick="dlCSV('nonpaid')" class="admin-btn">
+            <span class="material-symbols-outlined btn-icon">person_off</span>
+            <span class="btn-label">Non-paid Leads</span>
+            <span class="material-symbols-outlined btn-arrow">download</span>
+          </button>
+          <button onclick="dlCSV('all')" class="admin-btn">
+            <span class="material-symbols-outlined btn-icon" style="font-variation-settings:'FILL' 1;">group</span>
+            <span class="btn-label">All Users</span>
+            <span class="material-symbols-outlined btn-arrow">download</span>
+          </button>
+          <button onclick="dlCSV('comms')" class="admin-btn">
+            <span class="material-symbols-outlined btn-icon" style="font-variation-settings:'FILL' 1;">forum</span>
+            <span class="btn-label">Comm Log</span>
+            <span class="material-symbols-outlined btn-arrow">download</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <p class="text-center text-[11px] text-on-surface-variant mt-6">Shrinkray Admin · v1</p>
+
+</div>
+
+<!-- Auth Gate -->
+<div id="auth-gate">
+  <div class="glass-panel" style="width:100%;max-width:340px;border-radius:1.5rem;border:1px solid rgba(72,72,71,0.4);padding:32px 24px;">
+    <p class="section-label" style="margin-bottom:20px;">Admin Access</p>
+    <input type="password" id="auth-input" placeholder="Enter admin key" autocomplete="current-password"
+           onkeydown="if(event.key==='Enter')checkAuth()"/>
+    <button class="auth-submit" onclick="checkAuth()">Enter</button>
+    <p id="auth-error" style="color:#ff7351;font-size:11px;font-family:'Space Grotesk';margin-top:10px;display:none;text-align:center;">Incorrect key</p>
+  </div>
+</div>
+
+<script>
+  const BASE      = window.location.origin;
+  const ADMIN_KEY = 'WABuy2026';
+
+  const CATALOGUE = [
+    { title: 'Stone Chariot of Hampi',  subtitle: 'Heritage Series',  ref: 'DROP_REF: 0001', price: 4499, img: 'product1.webp' },
+    { title: 'Virupaksha Gopuram',      subtitle: 'Temple Series',     ref: 'DROP_REF: 0002', price: 3999, img: 'product2.webp' },
+    { title: 'Heritage Relief Panel',   subtitle: 'Sculpture Series',  ref: 'DROP_REF: 0003', price: 2999, img: 'product3.webp' },
+    { title: 'Temple Shrine Miniature', subtitle: 'Limited Edition',   ref: 'DROP_REF: 0004', price: 5499, img: 'product4.webp' },
+  ];
+
+  // 10 unique codes per product — share selectively via DM during live
+  const PRODUCT_CODES = [
+    ['LIVE1234','LIVE5678','LIVE9012','LIVE3456','SHRY1010','SHRY2020','SHRY3030','SHRY4040','SHRY5050','SHRY6060'],
+    ['DROP1234','DROP5678','DROP9012','DROP3456','VRPK1010','VRPK2020','VRPK3030','VRPK4040','VRPK5050','VRPK6060'],
+    ['HRGE1234','HRGE5678','HRGE9012','HRGE3456','RLPN1010','RLPN2020','RLPN3030','RLPN4040','RLPN5050','RLPN6060'],
+    ['TMPL1234','TMPL5678','TMPL9012','TMPL3456','MNTR1010','MNTR2020','MNTR3030','MNTR4040','MNTR5050','MNTR6060'],
+  ];
+
+  // ── Build product accordion cards ──
+  const linksEl = document.getElementById('product-links');
+  CATALOGUE.forEach((p, i) => {
+    const url   = `${BASE}/index.html?product=${i}`;
+    const codes = PRODUCT_CODES[i];
+    const card  = document.createElement('div');
+    card.className = 'prod-card';
+    card.innerHTML = `
+      <div class="prod-header" onclick="toggleProd(${i})">
+        <img src="${p.img}" alt="" class="w-9 h-11 object-cover rounded-lg flex-shrink-0"/>
+        <div class="flex-grow overflow-hidden">
+          <p class="text-white text-sm font-bold truncate">${p.title}</p>
+          <p class="text-on-surface-variant text-[10px] truncate">${p.ref} · ₹${p.price.toLocaleString('en-IN')}</p>
+        </div>
+        <button onclick="event.stopPropagation();copyLink('${url}',this)"
+                class="flex items-center gap-1 text-primary-container text-[10px] font-black font-label uppercase tracking-wider flex-shrink-0 mr-1"
+                style="padding:6px 10px;border-radius:8px;border:1px solid rgba(197,254,0,0.3);background:rgba(197,254,0,0.07);">
+          <span class="material-symbols-outlined" style="font-size:14px;">content_copy</span>
+          Link
+        </button>
+        <span class="material-symbols-outlined prod-chevron" id="chev-${i}">expand_more</span>
+      </div>
+      <div class="prod-body" id="body-${i}">
+        <p class="text-[9px] font-label uppercase tracking-[0.2em] text-on-surface-variant/40 mb-2">Access Codes — tap to copy</p>
+        <div class="flex flex-wrap gap-1.5">
+          ${codes.map(c => `<span onclick="copyCode('${c}',this)"
+            style="font-family:'Space Grotesk';font-size:9px;font-weight:700;letter-spacing:0.1em;
+                   padding:4px 9px;border-radius:6px;border:1px solid rgba(197,254,0,0.2);
+                   background:rgba(197,254,0,0.05);color:#c5fe00;cursor:pointer;transition:background .15s;"
+            title="Tap to copy">${c}</span>`).join('')}
+        </div>
+      </div>
+    `;
+    linksEl.appendChild(card);
+  });
+
+  function toggleProd(i) {
+    const body  = document.getElementById('body-' + i);
+    const chev  = document.getElementById('chev-' + i);
+    const open  = body.classList.toggle('open');
+    chev.classList.toggle('open', open);
+  }
+
+  function copyCode(code, el) {
+    navigator.clipboard.writeText(code).then(() => {
+      const orig = el.style.background;
+      el.style.background = 'rgba(197,254,0,0.25)';
+      setTimeout(() => { el.style.background = orig; }, 1200);
+    });
+  }
+
+  // ── Wire up analytics link with key ──
+  document.getElementById('analytics-link').href = `analytics.html?key=${ADMIN_KEY}`;
+
+  // ── Load live status ──
+  let isLive = false;
+  async function loadStatus() {
+    try {
+      const r = await fetch('/webhook/live-status');
+      const d = await r.json();
+      isLive = d.active;
+      updateStatusUI(d);
+    } catch(e) {
+      document.getElementById('status-text').textContent = 'Server offline';
+      document.getElementById('status-sub').textContent  = 'Start the server and refresh';
+    }
+  }
+
+  function updateStatusUI(d) {
+    const dot   = document.getElementById('status-dot');
+    const text  = document.getElementById('status-text');
+    const sub   = document.getElementById('status-sub');
+    const badge = document.getElementById('status-badge');
+    const btn   = document.getElementById('live-toggle-btn');
+    const icon  = document.getElementById('toggle-icon');
+    const label = document.getElementById('toggle-label');
+    const tsub  = document.getElementById('toggle-sub');
+
+    if (d.active) {
+      dot.className  = 'live-dot on';
+      text.textContent = 'LIVE NOW';
+      text.style.color = '#c5fe00';
+      sub.textContent  = 'Catalogue gate is OPEN — buyers can grab products';
+      badge.style.display     = 'block';
+      badge.textContent       = 'ON AIR';
+      badge.style.color       = '#c5fe00';
+      badge.style.borderColor = 'rgba(197,254,0,0.4)';
+      badge.style.background  = 'rgba(197,254,0,0.1)';
+      btn.classList.remove('state-off'); btn.classList.add('state-on');
+      icon.textContent = 'toggle_on';
+      icon.style.color = '#c5fe00';
+      label.textContent = 'Turn Live OFF';
+      tsub.textContent  = 'catalogue gate closes';
+    } else {
+      dot.className  = 'live-dot off';
+      text.textContent = 'NOT LIVE';
+      text.style.color = '#fff';
+      sub.textContent  = d.lastLive ? `Last live: ${d.lastLive}` : 'No live session yet';
+      badge.style.display     = 'block';
+      badge.textContent       = 'OFFLINE';
+      badge.style.color       = '#767575';
+      badge.style.borderColor = 'rgba(118,118,117,0.4)';
+      badge.style.background  = 'transparent';
+      btn.classList.remove('state-on'); btn.classList.add('state-off');
+      icon.textContent = 'toggle_off';
+      icon.style.color = '#767575';
+      label.textContent = 'Turn Live ON';
+      tsub.textContent  = 'catalogue gate opens';
+    }
+  }
+
+  // ── Toggle live ──
+  let toggling = false;
+  async function toggleLive() {
+    if (toggling) return;
+    toggling = true;
+    const action  = isLive ? 'off' : 'on';
+    const btn     = document.getElementById('live-toggle-btn');
+    const spinner = document.getElementById('toggle-loading');
+    const icon    = document.getElementById('toggle-icon');
+    btn.style.pointerEvents = 'none';
+    btn.style.opacity       = '0.55';
+    icon.style.visibility   = 'hidden';
+    spinner.style.display   = 'block';
+    try {
+      const r = await fetch(`/webhook/live-toggle?key=${ADMIN_KEY}&action=${action}`);
+      const d = await r.json();
+      const state = d.state || d;  // handle both response shapes
+      if (state.active !== undefined) { isLive = state.active; updateStatusUI(state); }
+    } catch(e) {
+      document.getElementById('status-sub').textContent = 'Server error — check console';
+    } finally {
+      btn.style.opacity       = '1';
+      btn.style.pointerEvents = 'auto';
+      spinner.style.display   = 'none';
+      icon.style.visibility   = '';
+      toggling = false;
+    }
+  }
+
+  // ── Copy link ──
+  function copyLink(url, btnEl) {
+    navigator.clipboard.writeText(url).then(() => {
+      const orig = btnEl.innerHTML;
+      btnEl.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px;">check</span> Copied!';
+      setTimeout(() => { btnEl.innerHTML = orig; }, 2000);
+    });
+  }
+
+  // ── Auth gate ──
+  function checkAuth() {
+    const val = document.getElementById('auth-input').value;
+    if (val === ADMIN_KEY) {
+      document.getElementById('auth-gate').style.display = 'none';
+      loadStatus();
+      loadCommsData();
+    } else {
+      const errEl = document.getElementById('auth-error');
+      errEl.style.display = 'block';
+      document.getElementById('auth-input').value = '';
+      document.getElementById('auth-input').focus();
+      setTimeout(() => { errEl.style.display = 'none'; }, 2500);
+    }
+  }
+  document.getElementById('auth-input').focus();
+
+
+  // ── Communications ───────────────────────────────────────────────────────────
+  let paidOrders    = [];
+  let nonPaidOrders = [];
+  let commLog       = [];
+  let filteredPaid  = [];
+  let bcastAud      = 'paid';
+  let commLogOpen   = false;
+  let bulkWAMsgs    = {};   // { containerId: [{msg,phone,name,orderId}] }
+
+  const STAGE_ORDER = ['confirmed','packed','shipped','delivered','feedback'];
+  const STAGE_LABEL = { confirmed:'Confirmed', packed:'Packed', shipped:'Shipped', delivered:'Delivered', feedback:'Feedback' };
+  const STAGE_COLOR = { confirmed:'#c5fe00', packed:'#fbbf24', shipped:'#60a5fa', delivered:'#34d399', feedback:'#a78bfa' };
+  const STAGE_NEXT  = { confirmed:'packed', packed:'shipped', shipped:'delivered', delivered:'feedback', feedback:null };
+  const STAGE_NEXT_LABEL = { confirmed:'Mark Packed', packed:'Mark Shipped', shipped:'Mark Delivered', delivered:'Send Feedback', feedback:null };
+
+  async function loadCommsData() {
+    try {
+      const [r1, r2, r3] = await Promise.all([
+        fetch(`/webhook/paid-orders?key=${ADMIN_KEY}`),
+        fetch(`/webhook/nonpaid-orders?key=${ADMIN_KEY}`),
+        fetch(`/webhook/comm-log?key=${ADMIN_KEY}`),
+      ]);
+      paidOrders    = (await r1.json()).reverse();
+      nonPaidOrders = (await r2.json()).reverse();
+      commLog       = (await r3.json()).reverse();
+      filteredPaid  = [...paidOrders];
+
+      // Init bulk stage buttons
+      const wrap = document.getElementById('ou-bulk-stage-btns');
+      if (wrap && !wrap.children.length) {
+        STAGE_ORDER.forEach(s => {
+          const b = document.createElement('button');
+          b.id = 'oubs-' + s;
+          b.className = 'c-tab' + (s === 'confirmed' ? ' active' : '');
+          b.style.cssText = 'flex:none;padding:5px 12px;';
+          b.textContent = STAGE_LABEL[s];
+          b.onclick = () => setOUBulkStage(s);
+          wrap.appendChild(b);
+        });
+      }
+
+      waFilteredOrders = [...paidOrders];
+      renderOUIndiv();
+      renderWASelect();
+      renderCommLog();
+    } catch(e) { console.warn('loadCommsData:', e.message); }
+  }
+
+  // ── Section toggles ──────────────────────────────────────────────────────────
+  function toggleCommsSection() {
+    const body = document.getElementById('comms-body');
+    const chev = document.getElementById('comms-chev');
+    chev.classList.toggle('open', body.classList.toggle('open'));
+  }
+  function toggleDLSection() {
+    const body = document.getElementById('dl-body');
+    const chev = document.getElementById('dl-chev');
+    chev.classList.toggle('open', body.classList.toggle('open'));
+  }
+
+  // ── Tab switches ─────────────────────────────────────────────────────────────
+  function switchCommsTab(tab) {
+    ['email','wa','broadcast'].forEach(t => {
+      document.getElementById('comms-tab-'+t).style.display = t===tab ? '' : 'none';
+      document.getElementById('ctab-'+t).classList.toggle('active', t===tab);
+    });
+  }
+  function switchWAView(view) {
+    document.getElementById('wa-indiv').style.display    = view==='indiv' ? '' : 'none';
+    document.getElementById('wa-bulk').style.display     = view==='bulk'  ? '' : 'none';
+    document.getElementById('wa-indiv-btn').classList.toggle('active', view==='indiv');
+    document.getElementById('wa-bulk-btn').classList.toggle('active', view==='bulk');
+  }
+
+  // ── WA message generator ─────────────────────────────────────────────────────
+  function stageWAMsg(order, stage) {
+    const fn = order.buyerName.split(' ')[0];
+    const tu = order.trackingUrl || '';
+    return {
+      confirmed: `Hi ${fn}! ✅ Your Shrinkray order #${order.orderId} is confirmed and we're getting it ready!\n\n${order.qty}× Heavyweight Hoodie · ₹${order.totalPrice}\n\nWe'll update you once it's packed. — Shrinkray Team`,
+      packed:    `Hi ${fn}! 📦 Your order #${order.orderId} is packed and being prepared for dispatch. Tracking details coming soon!\n\n— Shrinkray Team`,
+      shipped:   `Hi ${fn}! Your Shrinkray order is on its way 🚀\n\nOrder: #${order.orderId}\n${order.qty}× Heavyweight Hoodie · ₹${order.totalPrice}\n\nTrack here:\n${tu}\n\nDelivery in 5–7 working days. — Shrinkray Team`,
+      delivered: `Hi ${fn}! 🎉 Your Shrinkray order #${order.orderId} has been delivered! Hope you love it!\n\nShare a photo — we'd love to see it! — Shrinkray Team`,
+      feedback:  `Hi ${fn}! How's your Shrinkray piece? 😊 A quick review would mean the world to us. Thank you for your support!\n\n— Shrinkray Team`,
+    }[stage] || '';
+  }
+
+  function waLink(phone, msg) {
+    const c = phone.replace(/\D/g,'');
+    return `https://wa.me/${c.length===10?'91'+c:c}?text=${encodeURIComponent(msg)}`;
+  }
+
+  // ── Individual Order Updates ─────────────────────────────────────────────────
+  function filterPaidOrders() {
+    const q = document.getElementById('ou-search').value.trim().toLowerCase();
+    filteredPaid = q
+      ? paidOrders.filter(o => (o.buyerName||'').toLowerCase().includes(q) || (o.phone||'').includes(q) || (o.orderId||'').toLowerCase().includes(q))
+      : [...paidOrders];
+    renderOUIndiv();
+  }
+
+  // Email tab — order cards with stage advance only (no WA)
+  function renderOUIndiv() {
+    const list  = document.getElementById('ou-order-list');
+    const empty = document.getElementById('ou-empty');
+    if (!filteredPaid.length) { list.innerHTML=''; empty.style.display='block'; return; }
+    empty.style.display = 'none';
+    list.innerHTML = '';
+    filteredPaid.forEach(order => {
+      const stage = order.stage || 'confirmed';
+      const color = STAGE_COLOR[stage];
+      const nextS = STAGE_NEXT[stage];
+      const nextL = STAGE_NEXT_LABEL[stage];
+      const needsTracking = nextS === 'shipped';
+
+      const card = document.createElement('div');
+      card.id = 'ouc-' + order.orderId;
+      card.style.cssText = 'background:rgba(26,25,25,0.95);border:1px solid rgba(72,72,71,0.4);border-radius:12px;padding:12px 14px;margin-bottom:8px;';
+      card.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="overflow:hidden;flex:1;min-width:0;">
+            <p style="font-family:'Space Grotesk';font-weight:700;font-size:12px;color:#fff;margin:0 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${order.buyerName}</p>
+            <p style="font-family:'Space Grotesk';font-size:10px;color:#767575;margin:0;">${order.phone} · ${order.orderId} · ₹${order.totalPrice}</p>
+          </div>
+          <span class="stage-badge" style="border:1px solid ${color}40;background:${color}18;color:${color};">${STAGE_LABEL[stage]}</span>
+        </div>
+        ${needsTracking ? `<div id="tw-${order.orderId}" style="display:none;margin-bottom:8px;"><input class="c-input" id="ti-${order.orderId}" placeholder="Tracking URL for this order…"/></div>` : ''}
+        <div style="display:flex;align-items:center;gap:8px;">
+          ${nextL ? `
+          <button id="sb-${order.orderId}" onclick="advanceStage('${order.orderId}')"
+                  style="flex:1;font-size:10px;padding:8px 0;border-radius:8px;border:1px solid ${color}40;background:${color}15;color:${color};font-family:'Space Grotesk';font-weight:800;cursor:pointer;">
+            ${nextL} → <span style="font-size:9px;opacity:0.7;">✉ email fires</span>
+          </button>` : `<span style="flex:1;text-align:center;font-size:10px;color:#34d399;font-family:'Space Grotesk';padding:8px 0;">All done ✓</span>`}
+          <span id="email-sent-${order.orderId}" style="display:none;font-family:'Space Grotesk';font-size:9px;color:#34d399;">✉ Sent</span>
+        </div>`;
+      list.appendChild(card);
+    });
+  }
+
+  // WhatsApp individual tab — order picker + message preview
+  let waFilteredOrders = [];
+  let waSelectedOrder  = null;
+
+  function filterWAOrders() {
+    const q = document.getElementById('wa-search').value.trim().toLowerCase();
+    waFilteredOrders = q
+      ? paidOrders.filter(o => (o.buyerName||'').toLowerCase().includes(q) || (o.phone||'').includes(q) || (o.orderId||'').toLowerCase().includes(q))
+      : [...paidOrders];
+    renderWASelect();
+  }
+
+  function renderWASelect() {
+    const sel   = document.getElementById('wa-order-select');
+    const empty = document.getElementById('wa-empty');
+    if (!waFilteredOrders.length) {
+      sel.innerHTML = '<option value="">— No orders found —</option>';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+    sel.innerHTML = '<option value="">— Select a paid order —</option>' +
+      waFilteredOrders.map(o => {
+        const d = new Date(o.timestamp).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+        return `<option value="${o.orderId}">${o.orderId} · ${o.buyerName} · ${STAGE_LABEL[o.stage||'confirmed']} · ${d}</option>`;
+      }).join('');
+  }
+
+  function selectWAOrder(orderId) {
+    const preview = document.getElementById('wa-preview');
+    if (!orderId) { preview.style.display='none'; waSelectedOrder=null; return; }
+    waSelectedOrder = paidOrders.find(o => o.orderId === orderId) || null;
+    if (!waSelectedOrder) return;
+
+    const stage = waSelectedOrder.stage || 'confirmed';
+    const color = STAGE_COLOR[stage];
+    const msg   = stageWAMsg(waSelectedOrder, stage);
+
+    document.getElementById('wa-buyer-name').textContent   = waSelectedOrder.buyerName;
+    document.getElementById('wa-buyer-detail').textContent = `${waSelectedOrder.phone} · ₹${waSelectedOrder.totalPrice}`;
+    document.getElementById('wa-stage-badge').textContent  = STAGE_LABEL[stage];
+    document.getElementById('wa-stage-badge').style.cssText += `;border:1px solid ${color}40;background:${color}18;color:${color};`;
+    document.getElementById('wa-msg-text').textContent     = msg;
+    document.getElementById('wa-open-link').href           = waLink(waSelectedOrder.phone, msg);
+    preview.style.display = 'block';
+
+    // Log
+    fetch('/webhook/comm-log', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ orderId, stage, buyerName:waSelectedOrder.buyerName, phone:waSelectedOrder.phone, email:waSelectedOrder.email||'', channel:'whatsapp' }) });
+  }
+
+  function copyWAMsg() {
+    if (!waSelectedOrder) return;
+    const msg  = document.getElementById('wa-msg-text').textContent;
+    const btn  = document.getElementById('wa-copy-btn');
+    navigator.clipboard.writeText(msg).then(() => {
+      const orig = btn.textContent; btn.textContent='Copied!';
+      setTimeout(()=>{btn.textContent=orig;},2000);
+    });
+  }
+
+  async function advanceStage(orderId) {
+    const order = paidOrders.find(o => o.orderId === orderId);
+    if (!order) return;
+    const currentStage = order.stage || 'confirmed';
+    const nextStage    = STAGE_NEXT[currentStage];
+    if (!nextStage) return;
+
+    if (nextStage === 'shipped') {
+      const tw = document.getElementById('tw-' + orderId);
+      const ti = document.getElementById('ti-' + orderId);
+      if (!tw) return;
+      if (tw.style.display === 'none' || !tw.style.display) {
+        tw.style.display = 'block'; ti.focus();
+        const sb = document.getElementById('sb-' + orderId);
+        if (sb) sb.textContent = 'Confirm Shipped ✓';
+        return;
+      }
+      const trackingUrl = ti.value.trim();
+      if (!trackingUrl) { ti.style.borderColor='rgba(255,115,81,0.6)'; return; }
+      await doAdvanceStage(orderId, nextStage, trackingUrl);
+    } else {
+      await doAdvanceStage(orderId, nextStage, null);
+    }
+  }
+
+  async function doAdvanceStage(orderId, stage, trackingUrl) {
+    const btn = document.getElementById('sb-' + orderId);
+    if (btn) { btn.disabled=true; btn.textContent='Sending…'; }
+    try {
+      const r = await fetch('/webhook/order-stage', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'x-admin-key': ADMIN_KEY },
+        body: JSON.stringify({ orderId, stage, trackingUrl }),
+      });
+      const d = await r.json();
+      if (d.success) {
+        const o = paidOrders.find(o => o.orderId === orderId);
+        if (o) { o.stage = stage; if (trackingUrl) o.trackingUrl = trackingUrl; }
+        filteredPaid = [...paidOrders];
+        renderOUIndiv();
+        // Flash "✉ Sent" confirmation
+        const sentEl = document.getElementById('email-sent-' + orderId);
+        if (sentEl) { sentEl.style.display='inline'; setTimeout(()=>{sentEl.style.display='none';},3000); }
+      }
+    } catch(e) { if (btn) { btn.disabled=false; } }
+  }
+
+  // ── Bulk WA for Order Updates ─────────────────────────────────────────────────
+  let ouBulkStage = 'confirmed';
+
+  function setOUBulkStage(s) {
+    ouBulkStage = s;
+    document.querySelectorAll('#ou-bulk-stage-btns button').forEach(b => b.classList.remove('active'));
+    document.getElementById('oubs-'+s)?.classList.add('active');
+    document.getElementById('ou-bulk-tracking-wrap').style.display = s==='shipped' ? 'block' : 'none';
+    document.getElementById('ou-bulk-results').innerHTML = '';
+  }
+
+  function generateBulkOUWA() {
+    const trackingUrl = ouBulkStage === 'shipped' ? document.getElementById('ou-bulk-tracking-url').value.trim() : null;
+    if (ouBulkStage === 'shipped' && !trackingUrl) { document.getElementById('ou-bulk-tracking-url').style.borderColor='rgba(255,115,81,0.6)'; return; }
+    const targets = paidOrders.filter(o => (o.stage||'confirmed') === ouBulkStage);
+    if (ouBulkStage === 'shipped' && trackingUrl) targets.forEach(o => { if (!o.trackingUrl) o.trackingUrl = trackingUrl; });
+    renderBulkWAList('ou-bulk-results', targets, ouBulkStage, null);
+  }
+
+  // ── Comm Log ──────────────────────────────────────────────────────────────────
+  function toggleCommLog() {
+    commLogOpen = !commLogOpen;
+    document.getElementById('comm-log-body').style.display = commLogOpen ? 'block' : 'none';
+    document.getElementById('comm-log-toggle-label').textContent = commLogOpen ? 'Hide Comm Log ▴' : 'View Comm Log ▾';
+  }
+
+  function renderCommLog() {
+    const list = document.getElementById('comm-log-list');
+    if (!commLog.length) { list.innerHTML = '<p style="color:#767575;font-size:10px;font-family:\'Space Grotesk\';text-align:center;padding:10px 0;">No comms logged yet</p>'; return; }
+    const chIcon = { email:'✉', whatsapp:'💬' };
+    const stColor = { sent:'#34d399', failed:'#ff7351', generated:'#fbbf24' };
+    list.innerHTML = commLog.slice(0,50).map(c => {
+      const dt = new Date(c.ts).toLocaleDateString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(72,72,71,0.2);">
+        <div><span style="font-family:'Space Grotesk';font-size:10px;color:#fff;font-weight:700;">${c.buyerName||c.orderId}</span>
+        <span style="font-family:'Space Grotesk';font-size:9px;color:#767575;"> · ${c.stage} · ${chIcon[c.channel]||''}</span></div>
+        <div style="text-align:right;"><span style="font-family:'Space Grotesk';font-size:9px;color:${stColor[c.status]||'#767575'};">${c.status}</span>
+        <span style="display:block;font-family:'Space Grotesk';font-size:9px;color:#555;">${dt}</span></div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Broadcast ─────────────────────────────────────────────────────────────────
+  function setBcastAud(a) {
+    bcastAud = a;
+    ['paid','nonpaid','all'].forEach(x => document.getElementById('baud-'+x).classList.toggle('active', x===a));
+  }
+
+  function setTemplate(tmpl) {
+    const T = {
+      prelive:  `Hi {name}! We're going live again soon with new exclusive drops 🔥 Stay tuned — you won't want to miss this one!\n\n— Shrinkray Team`,
+      retarget: `Hi {name}! We noticed you checked us out last time but couldn't complete your order. We're bringing it back — join our next live for another chance 🎯\n\n— Shrinkray Team`,
+    };
+    document.getElementById('bcast-msg').value = T[tmpl] || '';
+  }
+
+  async function sendBroadcastEmails() {
+    const message = document.getElementById('bcast-msg').value.trim();
+    if (!message) return;
+    const btn = document.getElementById('bcast-email-btn');
+    btn.disabled = true; btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">hourglass_empty</span>Sending…';
+    const status = document.getElementById('bcast-email-status');
+    try {
+      const subject = bcastAud === 'nonpaid' ? 'You almost had it! — Shrinkray' : 'A message from Shrinkray';
+      const r = await fetch('/webhook/broadcast-email', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'x-admin-key': ADMIN_KEY },
+        body: JSON.stringify({ audience: bcastAud, subject, message }),
+      });
+      const d = await r.json();
+      status.style.display='block'; status.style.color='#34d399';
+      status.textContent = `✓ Sent to ${d.sent} email${d.sent!==1?'s':''}${d.failed?' · '+d.failed+' failed':''}`;
+    } catch(e) {
+      status.style.display='block'; status.style.color='#ff7351'; status.textContent='Send failed — check server';
+    } finally {
+      btn.disabled=false; btn.innerHTML='<span class="material-symbols-outlined btn-icon" style="font-variation-settings:\'FILL\' 1;">send</span><span class="btn-label" style="flex-grow:0;" id="bcast-email-label">Send to All</span>';
+    }
+  }
+
+  function genBroadcastWA() {
+    const message = document.getElementById('bcast-msg').value.trim();
+    if (!message) return;
+    const base = bcastAud==='paid' ? paidOrders : bcastAud==='nonpaid' ? nonPaidOrders : [...paidOrders,...nonPaidOrders];
+    const targets = base.filter(o => o.phone);
+    renderBulkWAList('bcast-wa-list', targets, 'broadcast', message);
+  }
+
+  // ── Shared bulk WA renderer ───────────────────────────────────────────────────
+  function renderBulkWAList(containerId, orders, stage, customMsg) {
+    const container = document.getElementById(containerId);
+    bulkWAMsgs[containerId] = [];
+    if (!orders.length) {
+      container.innerHTML = '<p style="color:#767575;font-size:11px;font-family:\'Space Grotesk\';text-align:center;padding:10px 0;">No contacts in this group</p>';
+      return;
+    }
+    const items = orders.map((o, idx) => {
+      const msg = customMsg
+        ? customMsg.replace(/{name}/g, o.buyerName.split(' ')[0])
+        : stageWAMsg(o, stage);
+      bulkWAMsgs[containerId].push({ msg, phone:o.phone, name:o.buyerName, orderId:o.orderId });
+      return { o, msg, link: waLink(o.phone, msg), idx };
+    });
+    container.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <p style="font-family:'Space Grotesk';font-size:10px;color:#767575;margin:0;">
+          <span style="color:#c5fe00;font-size:13px;font-weight:900;">${items.length}</span> messages ready
+        </p>
+        <button onclick="copyAllWA('${containerId}')" id="ca-${containerId}"
+                style="font-size:10px;padding:5px 10px;border-radius:8px;border:1px solid rgba(197,254,0,0.3);background:rgba(197,254,0,0.07);color:#c5fe00;cursor:pointer;font-family:'Space Grotesk';font-weight:800;">
+          Copy All
+        </button>
+      </div>` +
+      items.map(({ o, msg, link, idx }) => `
+        <div style="background:rgba(26,25,25,0.95);border:1px solid rgba(72,72,71,0.4);border-radius:10px;padding:12px;margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div>
+              <p style="font-family:'Space Grotesk';font-weight:700;font-size:12px;color:#fff;margin:0;">${o.buyerName}</p>
+              <p style="font-family:'Space Grotesk';font-size:10px;color:#767575;margin:0;">${o.phone}</p>
+            </div>
+            <div style="display:flex;gap:6px;">
+              <button data-cid="${containerId}" data-idx="${idx}" onclick="copySingleWA(this)"
+                      style="font-size:10px;padding:5px 8px;border-radius:8px;border:1px solid rgba(197,254,0,0.3);background:rgba(197,254,0,0.07);color:#c5fe00;cursor:pointer;font-family:'Space Grotesk';font-weight:800;">Copy</button>
+              <a href="${link}" target="_blank"
+                 style="font-size:10px;padding:5px 10px;border-radius:8px;background:#25D366;color:#fff;font-family:'Space Grotesk';font-weight:800;text-decoration:none;">WA</a>
+            </div>
+          </div>
+          <pre style="font-size:10px;line-height:1.75;color:#adaaaa;white-space:pre-wrap;margin:0;font-family:'Manrope';">${msg}</pre>
+        </div>`).join('');
+  }
+
+  function copySingleWA(btn) {
+    const msg = bulkWAMsgs[btn.dataset.cid]?.[+btn.dataset.idx]?.msg;
+    if (!msg) return;
+    navigator.clipboard.writeText(msg).then(() => { const o=btn.textContent; btn.textContent='Copied!'; setTimeout(()=>{btn.textContent=o;},2000); });
+  }
+
+  function copyAllWA(cid) {
+    const msgs = bulkWAMsgs[cid];
+    if (!msgs?.length) return;
+    const all = msgs.map((m,i)=>`── ${i+1}. ${m.name} (${m.phone}) ──\n${m.msg}`).join('\n\n'+'─'.repeat(38)+'\n\n');
+    const btn = document.getElementById('ca-'+cid);
+    navigator.clipboard.writeText(all).then(() => { const o=btn.textContent; btn.textContent='Copied All!'; setTimeout(()=>{btn.textContent=o;},2500); });
+  }
+
+  // ── Download Files ────────────────────────────────────────────────────────────
+  function dlCSV(type) {
+    let rows, filename;
+    const paidIds = new Set(paidOrders.map(o => o.orderId));
+    if (type === 'paid') {
+      rows = [['order_id','buyer_name','phone','email','city','state','address','pincode','qty','amount','stage','tracking_url','timestamp'],
+              ...paidOrders.map(o=>[o.orderId,o.buyerName,o.phone,o.email||'',o.city||'',o.state||'',o.address||'',o.pincode||'',o.qty||'',o.totalPrice||'',o.stage||'confirmed',o.trackingUrl||'',o.timestamp||''])];
+      filename = 'shrinkray_paid_orders.csv';
+    } else if (type === 'nonpaid') {
+      rows = [['order_id','buyer_name','phone','email','city','state','address','pincode','qty','amount','timestamp'],
+              ...nonPaidOrders.map(o=>[o.orderId||'',o.buyerName||'',o.phone||'',o.email||'',o.city||'',o.state||'',o.address||'',o.pincode||'',o.qty||'',o.totalPrice||'',o.timestamp||''])];
+      filename = 'shrinkray_leads.csv';
+    } else if (type === 'all') {
+      const all = [...paidOrders,...nonPaidOrders];
+      rows = [['order_id','buyer_name','phone','email','city','state','address','pincode','qty','amount','paid','stage','timestamp'],
+              ...all.map(o=>[o.orderId||'',o.buyerName||'',o.phone||'',o.email||'',o.city||'',o.state||'',o.address||'',o.pincode||'',o.qty||'',o.totalPrice||'',paidIds.has(o.orderId)?'yes':'no',o.stage||'',o.timestamp||''])];
+      filename = 'shrinkray_all_users.csv';
+    } else if (type === 'comms') {
+      rows = [['timestamp','order_id','buyer_name','phone','email','stage','channel','status'],
+              ...commLog.map(c=>[c.ts||'',c.orderId||'',c.buyerName||'',c.phone||'',c.email||'',c.stage||'',c.channel||'',c.status||''])];
+      filename = 'shrinkray_comm_log.csv';
+    }
+    if (!rows) return;
+    const csv  = rows.map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\r\n');
+    const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const url  = URL.createObjectURL(blob);
+    const a    = Object.assign(document.createElement('a'),{href:url,download:filename});
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  }
+</script>
+</body>
+</html>

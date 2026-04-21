@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&family=Manrope:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "surface-tint": "#f3ffcd", "primary-container": "#c5fe00",
+          "surface-container-lowest": "#000000", "primary-dim": "#b9ef00",
+          "primary": "#f3ffcd", "surface-variant": "#262626", "on-surface": "#ffffff",
+          "tertiary": "#fff1b2", "on-secondary-container": "#ffff6b",
+          "secondary-container": "#626200", "error-dim": "#d53d18", "on-error": "#450900",
+          "surface-container-high": "#201f1f", "primary-fixed": "#c5fe00",
+          "on-error-container": "#ffd2c8", "outline": "#767575",
+          "surface-dim": "#0e0e0e", "on-tertiary": "#675a00", "surface-bright": "#2c2c2c",
+          "surface-container-low": "#131313", "surface": "#0e0e0e",
+          "on-primary-fixed": "#384b00", "tertiary-container": "#fce34b",
+          "primary-fixed-dim": "#b9ef00", "on-primary": "#4f6700",
+          "tertiary-dim": "#eed53e", "error": "#ff7351", "secondary": "#e9e958",
+          "background": "#0e0e0e", "surface-container-highest": "#262626",
+          "on-tertiary-container": "#5d5200", "surface-container": "#1a1919",
+          "on-primary-container": "#485e00", "secondary-dim": "#dbdb4b",
+          "inverse-primary": "#4f6700", "on-surface-variant": "#adaaaa",
+          "inverse-on-surface": "#565555", "on-secondary": "#555500",
+          "outline-variant": "#484847", "error-container": "#b92902",
+          "on-background": "#ffffff",
+        },
+        borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" },
+        fontFamily: { "headline": ["Space Grotesk"], "body": ["Manrope"], "label": ["Space Grotesk"] }
+      },
+    },
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+  @keyframes bg-pulse {
+    0%, 100% { background-position: 0% 50%; }
+    50%       { background-position: 100% 50%; }
+  }
+  .animated-bg {
+    background: radial-gradient(circle at 50% 50%, #0e0e0e 0%, #1a1919 100%);
+    background-size: 200% 200%;
+    animation: bg-pulse 15s ease infinite;
+  }
+
+  /* ── Hero backdrop ── */
+  .hero-backdrop-container {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100vh; z-index: 0; overflow: hidden;
+  }
+  .hero-backdrop-img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: brightness(0.45) contrast(1.1) saturate(0.8);
+    object-position: center top;
+    transform: translateY(-20%);
+  }
+  .hero-vignette {
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at center, transparent 20%, rgba(14,14,14,0.6) 75%, #0e0e0e 100%);
+  }
+  .hero-bottom-fade {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 50vh;
+    background: linear-gradient(to top, #0e0e0e 0%, #0e0e0e 15%, transparent 100%);
+  }
+
+  /* ── Slot reel ── */
+  .slot-machine-frame { position: relative; overflow: hidden; }
+  @keyframes slot-spin-v2 {
+    0%   { transform: translateY(0); }
+    100% { transform: translateY(-50%); }
+  }
+  .slot-reel-animating { animation: slot-spin-v2 0.15s linear infinite; }
+  .mechanical-snap { transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1); }
+
+  /* ── Ticker ── */
+  @keyframes slide-down-ticker {
+    0%       { transform: translateY(-100%); opacity: 0; }
+    10%, 90% { transform: translateY(0);     opacity: 1; }
+    100%     { transform: translateY(-100%); opacity: 0; }
+  }
+  .ticker-toast { animation: slide-down-ticker 4s ease-in-out infinite; }
+
+  /* ── Glass ── */
+  .glass-panel {
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 0 15px rgba(255,255,255,0.05), inset 0 0 10px rgba(255,255,255,0.02);
+  }
+  .glass-deep {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(20px);
+  }
+
+  /* ── Input — locked background so browser never flashes white ── */
+  #code-input {
+    background: rgba(15,15,15,0.55) !important;
+    -webkit-box-shadow: 0 0 0 50px rgba(15,15,15,0.55) inset !important;
+  }
+  #code-input:-webkit-autofill,
+  #code-input:-webkit-autofill:hover,
+  #code-input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 50px rgba(15,15,15,0.55) inset !important;
+    -webkit-text-fill-color: #c5fe00 !important;
+    caret-color: #c5fe00;
+  }
+
+  /* ── Input border states ── */
+  .input-border {
+    border: 1px solid rgba(100,100,100,0.35);
+    box-shadow: none;
+  }
+  .input-border.input-error {
+    border-color: #ff7351 !important;
+    box-shadow: 0 0 12px rgba(255,115,81,0.25) !important;
+  }
+  .input-border.input-success {
+    border-color: #c5fe00 !important;
+    box-shadow: 0 0 18px rgba(197,254,0,0.35) !important;
+  }
+
+  /* ── Digit slot animations ── */
+  @keyframes digit-land {
+    0%   { transform: scale(1.4) translateY(-4px); opacity: 0.5; }
+    60%  { transform: scale(0.93); opacity: 1; }
+    100% { transform: scale(1);    opacity: 1; }
+  }
+  .digit-landed { animation: digit-land 0.28s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+  .digit-locked { animation: none !important; transition: color 0.3s ease; }
+
+  /* ── Button ── */
+  .btn-premium {
+    background: linear-gradient(135deg, #c5fe00 0%, #a8d600 100%);
+    box-shadow: 0 10px 30px -10px rgba(197,254,0,0.5);
+  }
+  @keyframes neon-pulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(197,254,0,0.4), 0 0 40px rgba(197,254,0,0.2); }
+    50%       { box-shadow: 0 0 35px rgba(197,254,0,0.7), 0 0 60px rgba(197,254,0,0.4); }
+  }
+  .pulse-glow { animation: neon-pulse 2s ease-in-out infinite; }
+
+  /* ── Price text glow after deal unlock (replaces box-shadow rectangle) ── */
+  @keyframes price-glow {
+    0%, 100% { text-shadow: 0 0 6px rgba(197,254,0,0.2); }
+    50%       { text-shadow: 0 0 18px rgba(197,254,0,0.6), 0 0 36px rgba(197,254,0,0.25); }
+  }
+  .price-live { animation: price-glow 2.5s ease-in-out infinite; }
+
+  /* ── Error pulse (live dot) ── */
+  @keyframes pulse-error { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+  .pulse-error { animation: pulse-error 1s infinite ease-in-out; }
+
+  /* ── Typing placeholder animation ── */
+  @keyframes typing {
+    from { width: 0; }
+    to   { width: 100%; }
+  }
+  @keyframes blink-caret {
+    from, to { border-color: transparent; }
+    50%      { border-color: rgba(197,254,0,0.5); }
+  }
+  .typing-placeholder::placeholder {
+    overflow: hidden;
+    border-right: .15em solid rgba(197,254,0,0.5);
+    white-space: nowrap;
+    letter-spacing: .4em;
+    animation: typing 3.5s steps(4, end) infinite, blink-caret .75s step-end infinite;
+  }
+
+  /* ── Reuse popup animations ── */
+  @keyframes popup-pop {
+    0%   { transform: scale(0.75); opacity: 0; }
+    65%  { transform: scale(1.04); }
+    100% { transform: scale(1);    opacity: 1; }
+  }
+  .popup-pop { animation: popup-pop 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+  @keyframes neon-ring {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(197,254,0,0); }
+    50%       { box-shadow: 0 0 0 8px rgba(197,254,0,0.12); }
+  }
+  .neon-ring { animation: neon-ring 2s ease-in-out infinite; }
+  @keyframes btn-bounce {
+    0%, 100% { transform: scale(1);    box-shadow: 0 4px 24px rgba(197,254,0,0.3); }
+    25%       { transform: scale(1.05); box-shadow: 0 8px 36px rgba(197,254,0,0.65); }
+    50%       { transform: scale(0.97); }
+    75%       { transform: scale(1.03); box-shadow: 0 6px 30px rgba(197,254,0,0.5); }
+  }
+  .btn-bounce { animation: btn-bounce 2.4s ease-in-out infinite; }
+
+  /* ── Code / deal crossfade ── */
+  #code-input-area { transition: opacity 0.3s ease; }
+  #deal-info       { transition: opacity 0.5s ease 0.15s, transform 0.5s cubic-bezier(0.34,1.4,0.64,1) 0.15s; }
+  #activate-btn    { transition: background 0.4s ease, border 0.4s ease, box-shadow 0.4s ease, color 0.4s ease; }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  html, body { overscroll-behavior: none; }
+</style>
+</head>
+<body class="animated-bg text-on-background font-body h-screen w-full overflow-hidden flex flex-col relative">
+
+<!-- ── Code-already-used popup ── -->
+<div id="reuse-popup" class="hidden fixed inset-0 z-[200] flex items-center justify-center px-6"
+     style="background:rgba(0,0,0,0.88);backdrop-filter:blur(16px);">
+  <div class="popup-pop w-full max-w-sm rounded-[2.5rem] overflow-hidden relative"
+       style="background:linear-gradient(160deg,#1a1919 0%,#111 100%);border:1px solid rgba(197,254,0,0.25);box-shadow:0 0 60px rgba(197,254,0,0.08);">
+    <div style="height:3px;background:linear-gradient(90deg,transparent,#c5fe00,transparent);"></div>
+    <div class="px-7 pt-8 pb-7 text-center">
+      <div class="neon-ring w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center"
+           style="background:rgba(197,254,0,0.07);border:1.5px solid rgba(197,254,0,0.3);">
+        <span class="text-3xl">⚡</span>
+      </div>
+      <p class="text-[9px] font-bold font-label uppercase tracking-[0.3em] text-primary-container mb-2">Code Already Claimed</p>
+      <h3 class="font-headline font-black text-xl text-white uppercase tracking-tight leading-tight mb-3">
+        You used this one<br/>on this device!
+      </h3>
+      <p class="text-on-surface-variant text-sm leading-relaxed mb-6">
+        Each code works once per device. The live is still going — a fresh code might drop any second 👀
+      </p>
+      <a href="https://www.instagram.com/" target="_blank"
+         class="btn-bounce flex items-center justify-center gap-2.5 w-full h-14 rounded-full mb-4"
+         style="background:#c5fe00;color:#1a2600;text-decoration:none;font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;">
+        <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL' 1;">live_tv</span>
+        Next Drop Is Live Now 🔴
+      </a>
+      <button onclick="document.getElementById('reuse-popup').classList.add('hidden');document.getElementById('code-input').value='';"
+              class="flex items-center justify-center gap-1 mx-auto text-on-surface-variant/40 hover:text-on-surface-variant text-xs font-bold font-label uppercase tracking-widest transition-colors">
+        <span class="material-symbols-outlined text-sm">keyboard_backspace</span>
+        Try a different code
+      </button>
+    </div>
+    <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(197,254,0,0.15),transparent);"></div>
+  </div>
+</div>
+
+<!-- ── Hero backdrop ── -->
+<div class="hero-backdrop-container">
+  <img id="product-hero-img" alt="Shrinkray Product" class="hero-backdrop-img" src="product1.webp"/>
+  <div class="hero-vignette"></div>
+  <div class="hero-bottom-fade"></div>
+</div>
+
+<!-- ── Main layout ── -->
+<div class="mx-auto w-full max-w-2xl h-full flex flex-col relative z-10">
+
+  <!-- Header -->
+  <header class="flex-none flex flex-col items-center pt-8 pb-4">
+    <h1 class="text-base font-bold tracking-[0.2em] text-primary font-headline uppercase leading-none">SHRINKRAY × WABUY</h1>
+    <div class="flex items-center gap-1.5 mt-2">
+      <span class="w-1.5 h-1.5 rounded-full bg-error pulse-error"></span>
+      <span id="viewer-count" class="text-[9px] font-label uppercase tracking-[0.15em] text-on-surface-variant/80">1.8K WATCHING</span>
+    </div>
+  </header>
+
+  <!-- Social Proof Ticker -->
+  <div class="flex justify-center pointer-events-none px-6 mb-4">
+    <div id="activity-feed" class="ticker-toast glass-panel px-4 py-2 rounded-full flex items-center gap-2">
+      <span class="text-primary-container material-symbols-outlined" style="font-size:13px;font-variation-settings:'FILL' 1;">bolt</span>
+      <span id="feed-text" class="text-[10px] font-label uppercase tracking-wider text-on-surface"></span>
+    </div>
+  </div>
+
+  <!-- Main — justify-end + no mb-auto = entire stack anchors at bottom (≈65% down) -->
+  <main class="flex-grow flex flex-col items-center justify-end px-6 pb-2">
+
+    <div class="w-full max-w-[340px] flex flex-col gap-2">
+
+      <!-- Product name — now IN the stack, right above the price, no gap -->
+      <div class="text-center pb-1">
+        <p id="product-name-display" class="font-headline font-black text-sm text-white uppercase tracking-widest opacity-80 leading-tight"></p>
+        <p id="product-sub-display" class="font-label text-[9px] text-on-surface-variant uppercase tracking-widest mt-0.5"></p>
+      </div>
+
+      <!-- Price slot — digit-by-digit, NEVER moves regardless of layout below -->
+      <div class="flex flex-col items-center gap-0.5 w-full">
+        <span class="text-[8px] font-headline font-black text-on-surface-variant/40 uppercase tracking-[0.3em]" id="price-label">ORIGINAL RETAIL PRICE</span>
+        <div class="w-full h-12 flex items-center justify-center" id="price-slot-container">
+          <div id="price-display" class="flex items-baseline justify-center gap-0.5 transition-colors duration-500" style="color:#ff7351;">
+            <span class="text-2xl font-black font-headline">₹</span>
+            <span class="text-4xl font-black font-headline tabular-nums" id="pd-th">8</span>
+            <span class="text-2xl font-black font-headline">,</span>
+            <span class="text-4xl font-black font-headline tabular-nums" id="pd-hu">4</span>
+            <span class="text-4xl font-black font-headline tabular-nums" id="pd-te">9</span>
+            <span class="text-4xl font-black font-headline tabular-nums" id="pd-on">9</span>
+          </div>
+        </div>
+      </div>
+
+      <!--
+        Grid container — code-input-area and deal-info share the exact same grid cell.
+        Button lives OUTSIDE the grid so it never disappears — only its state morphs.
+      -->
+      <div style="display:grid;" id="code-section">
+
+        <!-- Code input (pre-activation) — fades out but keeps layout space -->
+        <div class="flex flex-col gap-2 w-full" id="code-input-area" style="grid-area:1/1; align-self:center;">
+          <input
+            id="code-input"
+            class="w-full h-10 rounded-full px-6 text-center font-headline font-black text-sm tracking-[0.4em] uppercase text-primary-container placeholder:text-on-surface-variant/30 focus:outline-none typing-placeholder input-border"
+            style="backdrop-filter: blur(20px);"
+            maxlength="8"
+            placeholder="LIVE CODE"
+            type="text"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <p class="hidden text-[11px] text-center text-error font-bold uppercase tracking-wide" id="code-error"></p>
+          <p class="text-[8px] text-center text-on-surface-variant/40 font-medium uppercase tracking-[0.2em]">
+            Enter code from live stream to unlock 🔥
+          </p>
+        </div>
+
+        <!-- Deal info (post-activation) — single rotating ticker, no background -->
+        <div id="deal-info"
+             style="grid-area:1/1; align-self:center; opacity:0; transform:translateY(8px); pointer-events:none;">
+          <div class="flex items-center justify-center gap-1.5">
+            <span class="material-symbols-outlined" id="deal-rot-icon"
+                  style="font-size:11px; color:#c5fe00; font-variation-settings:'FILL' 1; transition:opacity 0.25s ease;">sell</span>
+            <span class="font-label font-bold text-[9px] uppercase tracking-[0.2em]" id="deal-rot-text"
+                  style="color:#c5fe00; transition:opacity 0.25s ease;">SAVED ₹7,400 🔥</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="flex-none px-6 pt-0 pb-4 flex flex-col items-center gap-2">
+
+    <!-- Activate button (always visible — morphs after deal unlock) -->
+    <button
+      id="activate-btn"
+      class="btn-premium w-full max-w-[340px] h-14 text-black font-headline font-black rounded-full uppercase tracking-[0.25em] text-xs flex items-center justify-center gap-2 active:scale-95 pulse-glow"
+      onclick="activateDeal()">
+      <span class="material-symbols-outlined" id="btn-icon" style="font-size:16px;font-variation-settings:'FILL' 1;">bolt</span>
+      <span id="btn-label">ACTIVATE DEAL</span>
+    </button>
+    <!-- Slide to grab -->
+    <div class="w-full max-w-[340px] relative h-14 bg-surface-container-high/20 backdrop-blur-md rounded-full p-1.5 flex items-center overflow-hidden border border-outline-variant/10 opacity-30 pointer-events-none transition-all duration-700 shadow-2xl" id="grab-slider">
+      <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <span class="font-headline font-black text-[9px] text-white/40 tracking-[0.3em] uppercase ml-8">Slide to Grab Now</span>
+      </div>
+      <div id="slider-thumb" class="h-full aspect-square bg-primary-container rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(197,254,0,0.3)] cursor-grab z-10 select-none">
+        <span class="material-symbols-outlined text-black">keyboard_double_arrow_right</span>
+      </div>
+      <div id="slider-trail" class="absolute inset-y-0 left-0 bg-gradient-to-r from-primary-container/30 to-transparent pointer-events-none" style="width:48px;"></div>
+    </div>
+    <!-- Trust badges -->
+    <div class="flex items-center gap-6 text-[7px] font-label text-on-surface-variant/30 uppercase tracking-[0.2em]">
+      <span class="flex items-center gap-1.5"><span class="material-symbols-outlined" style="font-size:10px;">verified_user</span>SECURE</span>
+      <span class="flex items-center gap-1.5"><span class="material-symbols-outlined" style="font-size:10px;">local_shipping</span>EXPRESS</span>
+      <span class="flex items-center gap-1.5"><span class="material-symbols-outlined" style="font-size:10px;">refresh</span>EASY RETURNS</span>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  // ─── Analytics tracker ───────────────────────────────────────────────────────
+  function getUid() {
+    let uid = localStorage.getItem('srx_uid');
+    if (!uid) { uid = Math.random().toString(36).slice(2,9) + Date.now().toString(36); localStorage.setItem('srx_uid', uid); }
+    return uid;
+  }
+  function track(event, data) {
+    fetch('/webhook/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event, sid: getUid(), ...(data || {}) })
+    }).catch(() => {});
+  }
+  if (!sessionStorage.getItem('srx_tracked_load')) {
+    sessionStorage.setItem('srx_tracked_load', '1');
+    track('page_load');
+  }
+
+  // ─── DYNAMIC DATA ────────────────────────────────────────────────────────────
+  // Masked-name people pool
+  const PEOPLE = [
+    ['Rxxhul','Delhi'],       ['Pxxiya','Mumbai'],     ['Axxjun','Bengaluru'],
+    ['Nxxha','Hyderabad'],    ['Vxxkram','Chennai'],   ['Axxjali','Kolkata'],
+    ['Rxxhan','Pune'],        ['Dxxya','Ahmedabad'],   ['Kxxan','Jaipur'],
+    ['Sxxjay','Kochi'],       ['Sxxeya','Chandigarh'], ['Mxxhit','Noida'],
+    ['Pxxja','Surat'],        ['Axxkush','Lucknow'],   ['Hxxrsh','Gurugram'],
+    ['Txxvi','Indore'],       ['Kxxya','Mumbai'],      ['Axxnya','Delhi'],
+    ['Yxxsh','Bengaluru'],    ['Zxxa','Pune'],         ['Kxxir','Ahmedabad'],
+    ['Ixxan','Lucknow'],      ['Sxxna','Noida'],       ['Dxxak','Surat'],
+  ];
+  const _ACTS = ['unlocked the deal ⚡','just grabbed one 🔥','snagged it 🎯','just checked out 🛒','— deal activated ✅','locked it in 🚀','nabbed the deal 🏆','just bought this 💥'];
+  const FEED_ITEMS = PEOPLE.map(([n,c],i) => `${n} from ${c} ${_ACTS[i % _ACTS.length]}`);
+
+  // ── Product catalogue — must be before stock counter (which uses _pidx) ──────
+  const CATALOGUE = [
+    { title: 'Stone Chariot of Hampi',  subtitle: 'Heritage Series',  ref: 'DROP_REF: 0001', price: 4499, img: 'product1.webp' },
+    { title: 'Virupaksha Gopuram',      subtitle: 'Temple Series',     ref: 'DROP_REF: 0002', price: 3999, img: 'product2.webp' },
+    { title: 'Heritage Relief Panel',   subtitle: 'Sculpture Series',  ref: 'DROP_REF: 0003', price: 2999, img: 'product3.webp' },
+    { title: 'Temple Shrine Miniature', subtitle: 'Limited Edition',   ref: 'DROP_REF: 0004', price: 5499, img: 'product4.webp' },
+  ];
+  const _pidx   = parseInt(new URLSearchParams(location.search).get('product')) || 0;
+  const PRODUCT = CATALOGUE[_pidx] || CATALOGUE[0];
+
+  document.getElementById('product-hero-img').src             = PRODUCT.img;
+  document.getElementById('product-name-display').textContent = PRODUCT.title;
+  document.getElementById('product-sub-display').textContent  = PRODUCT.subtitle + ' · ' + PRODUCT.ref;
+  sessionStorage.setItem('srx_product', JSON.stringify(PRODUCT));
+
+  // Init slot display from PRODUCT.price (retail)
+  (function() {
+    const p = PRODUCT.price;
+    document.getElementById('pd-th').textContent = Math.floor(p / 1000) % 10;
+    document.getElementById('pd-hu').textContent = Math.floor(p / 100) % 10;
+    document.getElementById('pd-te').textContent = Math.floor(p / 10) % 10;
+    document.getElementById('pd-on').textContent = p % 10;
+  })();
+
+  // Dynamic stock counter — per product, decrements across page views
+  const STOCK_KEY = `srx_stock_${_pidx}`;
+  let stockLeft = parseInt(localStorage.getItem(STOCK_KEY));
+  if (!stockLeft || stockLeft < 2) stockLeft = [14, 11, 9, 7][_pidx] ?? 10;
+  stockLeft = Math.max(2, stockLeft - (Math.random() < 0.55 ? 1 : 0));
+  localStorage.setItem(STOCK_KEY, stockLeft);
+
+  // Live deal price computed on activation (20–22% off PRODUCT.price)
+  let dealPrice = 0;
+  let countdownSecs = 120;
+
+  // ── Viewer count ──────────────────────────────────────────────────────────────
+  let viewers = 1800;
+  function updateViewers() {
+    const delta = Math.floor(Math.random() * 300) - 120;
+    viewers = Math.max(1000, Math.min(3000, viewers + delta));
+    const d = viewers >= 1000 ? (viewers / 1000).toFixed(1) + 'K' : viewers.toString();
+    document.getElementById('viewer-count').textContent = d + ' WATCHING';
+  }
+  updateViewers();
+  setInterval(updateViewers, 1200);
+
+  // ── Activity feed ─────────────────────────────────────────────────────────────
+  let feedIdx = Math.floor(Math.random() * FEED_ITEMS.length);
+  function rotateFeed() {
+    feedIdx = (feedIdx + 1) % FEED_ITEMS.length;
+    const el   = document.getElementById('feed-text');
+    const feed = document.getElementById('activity-feed');
+    const msg  = FEED_ITEMS[feedIdx];
+    el.innerHTML = `<span style="color:#c5fe00;font-weight:600;">${msg.split(' ').slice(0,3).join(' ')}</span> ${msg.split(' ').slice(3).join(' ')}`;
+    feed.style.animation = 'none';
+    feed.offsetHeight;
+    feed.style.animation = '';
+  }
+  rotateFeed();
+  setInterval(rotateFeed, 4000);
+
+  // ── Valid codes — 10 unique codes per product, distributed via DM during live ──
+  const PRODUCT_CODES = [
+    // Product 0: Stone Chariot of Hampi (DROP_REF: 0001)
+    ['LIVE1234','LIVE5678','LIVE9012','LIVE3456','SHRY1010','SHRY2020','SHRY3030','SHRY4040','SHRY5050','SHRY6060'],
+    // Product 1: Virupaksha Gopuram (DROP_REF: 0002)
+    ['DROP1234','DROP5678','DROP9012','DROP3456','VRPK1010','VRPK2020','VRPK3030','VRPK4040','VRPK5050','VRPK6060'],
+    // Product 2: Heritage Relief Panel (DROP_REF: 0003)
+    ['HRGE1234','HRGE5678','HRGE9012','HRGE3456','RLPN1010','RLPN2020','RLPN3030','RLPN4040','RLPN5050','RLPN6060'],
+    // Product 3: Temple Shrine Miniature (DROP_REF: 0004)
+    ['TMPL1234','TMPL5678','TMPL9012','TMPL3456','MNTR1010','MNTR2020','MNTR3030','MNTR4040','MNTR5050','MNTR6060'],
+  ];
+  const VALID_CODES          = PRODUCT_CODES[_pidx] || PRODUCT_CODES[0];
+  const usedCodesThisSession = new Set(); // in-memory — resets on refresh, by design
+
+  document.getElementById('code-input').addEventListener('input', clearError);
+
+  function clearError() {
+    document.getElementById('code-error').classList.add('hidden');
+    document.getElementById('code-input').classList.remove('input-error');
+  }
+
+  function showError(msg) {
+    const err   = document.getElementById('code-error');
+    const input = document.getElementById('code-input');
+    err.textContent = msg;
+    err.classList.remove('hidden');
+    input.classList.add('input-error');
+    input.animate(
+      [{ transform: 'translateX(-5px)' }, { transform: 'translateX(5px)' }, { transform: 'translateX(0)' }],
+      { duration: 280 }
+    );
+  }
+
+  // ── Activate deal ─────────────────────────────────────────────────────────────
+  function activateDeal() {
+    const input = document.getElementById('code-input');
+    const code  = input.value.trim().toUpperCase();
+
+    if (!/^[A-Z]{4}[0-9]{4}$/.test(code)) {
+      track('code_invalid', { code });
+      showError(code.length === 0 ? 'Enter the live code to unlock your deal' : 'Format: 4 letters + 4 numbers  e.g. LIVE1234');
+      return;
+    }
+    if (!VALID_CODES.includes(code)) {
+      track('code_invalid', { code });
+      showError('Wrong code — watch the live stream for the correct one!');
+      return;
+    }
+
+    // Per-session reuse check (in-memory — resets on refresh, by design)
+    if (usedCodesThisSession.has(code)) {
+      track('code_reused', { code });
+      showError('Already used this code today! Refresh the page to try another ⚡');
+      return;
+    }
+
+    // Brief green flash on input, then fade out code entry area
+    input.classList.add('input-success');
+    clearError();
+    track('code_unlocked', { code });
+    usedCodesThisSession.add(code);
+    const codeInputArea = document.getElementById('code-input-area');
+    setTimeout(() => {
+      codeInputArea.style.opacity = '0';
+      codeInputArea.style.pointerEvents = 'none';
+    }, 350);
+
+    const label     = document.getElementById('price-label');
+    const container = document.getElementById('price-slot-container');
+    const dealInfo  = document.getElementById('deal-info');
+    const slider    = document.getElementById('grab-slider');
+    const priceEl   = document.getElementById('price-display');
+
+    // Compute live price: 20–22% discount off PRODUCT.price, any digit in range
+    const discPct = 0.20 + Math.random() * 0.02;
+    const endVal  = Math.floor(PRODUCT.price * (1 - discPct));
+    dealPrice     = endVal;
+    const saved   = PRODUCT.price - endVal;
+
+    // Parse target digits
+    const tgt = {
+      th: Math.floor(endVal / 1000),
+      hu: Math.floor((endVal % 1000) / 100),
+      te: Math.floor((endVal % 100) / 10),
+      on: endVal % 10,
+    };
+    const digs = {
+      th: document.getElementById('pd-th'),
+      hu: document.getElementById('pd-hu'),
+      te: document.getElementById('pd-te'),
+      on: document.getElementById('pd-on'),
+    };
+
+    label.textContent = 'CALCULATING YOUR DEAL...';
+    label.classList.add('animate-pulse');
+
+    const rnd    = () => Math.floor(Math.random() * 10);
+    const locked = new Set();
+
+    // Digits lock right-to-left: ones → tens → hundreds → thousands
+    const LOCK_AT = { on: 1200, te: 2000, hu: 2700, th: 3500 };
+    const TOTAL   = 3500;
+
+    // Interval grows exponentially: 35ms → 290ms over TOTAL ms (slows down visually)
+    function spinInterval(elapsed) {
+      return 35 * Math.pow(290 / 35, Math.min(elapsed, TOTAL) / TOTAL);
+    }
+
+    function lockDigit(k) {
+      locked.add(k);
+      digs[k].textContent = tgt[k];
+      digs[k].classList.remove('digit-landed');
+      void digs[k].offsetWidth; // force reflow for animation restart
+      digs[k].classList.add('digit-locked', 'digit-landed');
+    }
+
+    function runSlot() {
+      const t0 = performance.now();
+      let lastSpin = t0;
+
+      function frame(now) {
+        const elapsed  = now - t0;
+        const interval = spinInterval(elapsed);
+
+        // Lock digits on schedule
+        for (const [k, lockMs] of Object.entries(LOCK_AT)) {
+          if (elapsed >= lockMs && !locked.has(k)) lockDigit(k);
+        }
+
+        // Spin unlocked digits
+        if (now - lastSpin >= interval) {
+          for (const [k, el] of Object.entries(digs)) {
+            if (!locked.has(k)) el.textContent = rnd();
+          }
+          lastSpin = now;
+        }
+
+        if (locked.size < 4) {
+          requestAnimationFrame(frame);
+        } else {
+          // Colour cascade: ones → tens → hundreds → thousands
+          ['on','te','hu','th'].forEach((k, i) => {
+            setTimeout(() => {
+              digs[k].style.transition = 'color 0.45s ease';
+              digs[k].style.color = '#c5fe00';
+            }, i * 110);
+          });
+          // Rupee + comma symbols
+          setTimeout(() => {
+            priceEl.querySelectorAll('span:not([id])').forEach(s => {
+              s.style.transition = 'color 0.45s ease';
+              s.style.color = '#c5fe00';
+            });
+          }, 4 * 110);
+
+          // Reveal UI after cascade settles
+          setTimeout(() => {
+            label.textContent = 'EXCLUSIVE LIVE DEAL 🔥';
+            label.classList.remove('animate-pulse');
+            label.style.color = '#c5fe00';
+            priceEl.classList.add('price-live');
+            // Fade in rotating info ticker
+            dealInfo.style.opacity      = '1';
+            dealInfo.style.transform    = 'translateY(0)';
+            dealInfo.style.pointerEvents = 'auto';
+            // Morph button to activated state
+            const btn = document.getElementById('activate-btn');
+            btn.disabled = true;
+            btn.classList.remove('btn-premium', 'pulse-glow', 'active:scale-95', 'text-black');
+            btn.style.background  = 'rgba(197,254,0,0.1)';
+            btn.style.border      = '1px solid rgba(197,254,0,0.3)';
+            btn.style.boxShadow   = 'none';
+            btn.style.color       = '#c5fe00';
+            btn.style.cursor      = 'default';
+            document.getElementById('btn-icon').textContent = 'check_circle';
+            document.getElementById('btn-label').textContent = 'DEAL ACTIVATED';
+            // Activate slider
+            slider.classList.remove('opacity-30', 'pointer-events-none');
+            slider.classList.add('opacity-100');
+            slider.style.borderColor = 'rgba(197,254,0,0.4)';
+            startCountdown();
+            startDealRotation(saved);
+          }, 4 * 110 + 500);
+        }
+      }
+
+      requestAnimationFrame(frame);
+    }
+
+    runSlot();
+  }
+
+  // ── Countdown timer (just decrements the variable; ticker reads it) ──────────
+  function startCountdown() {
+    countdownSecs = 120;
+    const t = setInterval(() => {
+      countdownSecs--;
+      if (countdownSecs <= 0) clearInterval(t);
+    }, 1000);
+  }
+
+  // ── Rotating deal info ticker (no background, small text, 3-message cycle) ───
+  function startDealRotation(saved) {
+    const fmt = n => String(n).padStart(2, '0');
+    const msgs = [
+      { icon: 'sell',        fill: 1, color: '#c5fe00', getText: () => `SAVED ₹${saved.toLocaleString('en-IN')} 🔥` },
+      { icon: 'timer',       fill: 0, color: '#ff7351', getText: () => `PRICE LOCKED: ${fmt(Math.floor(countdownSecs/60))}:${fmt(countdownSecs%60)}` },
+      { icon: 'inventory_2', fill: 0, color: '#adaaaa', getText: () => `ONLY ${stockLeft} LEFT AT THIS PRICE` },
+    ];
+    let idx = 0;
+    const iconEl = document.getElementById('deal-rot-icon');
+    const textEl = document.getElementById('deal-rot-text');
+
+    function showMsg(i) {
+      const m = msgs[i];
+      iconEl.style.opacity = '0';
+      textEl.style.opacity = '0';
+      setTimeout(() => {
+        iconEl.textContent = m.icon;
+        iconEl.style.color = m.color;
+        iconEl.style.fontVariationSettings = `'FILL' ${m.fill}`;
+        textEl.textContent = m.getText();
+        textEl.style.color = m.color;
+        iconEl.style.opacity = '1';
+        textEl.style.opacity = '1';
+      }, 250);
+    }
+
+    showMsg(0);
+    setInterval(() => { idx = (idx + 1) % msgs.length; showMsg(idx); }, 3000);
+  }
+
+  // ── Slide to grab ─────────────────────────────────────────────────────────────
+  (function initSlider() {
+    const track = document.getElementById('grab-slider');
+    const thumb = document.getElementById('slider-thumb');
+    const trail = document.getElementById('slider-trail');
+    let dragging = false, startX = 0, thumbLeft = 0;
+
+    function getMax() { return track.clientWidth - thumb.clientWidth - 12; }
+
+    function onStart(e) {
+      if (track.classList.contains('pointer-events-none')) return;
+      dragging  = true;
+      startX    = e.touches ? e.touches[0].clientX : e.clientX;
+      thumbLeft = 0;
+      thumb.style.cursor = 'grabbing';
+    }
+    function onMove(e) {
+      if (!dragging) return;
+      const x   = e.touches ? e.touches[0].clientX : e.clientX;
+      const max = getMax();
+      thumbLeft = Math.max(0, Math.min(x - startX, max));
+      thumb.style.marginLeft = thumbLeft + 'px';
+      trail.style.width = (thumbLeft + thumb.clientWidth) + 'px';
+      if (thumbLeft >= max * 0.92) {
+        dragging = false;
+        window.location.href = `checkout.html?price=${dealPrice}&t=${countdownSecs}`;
+      }
+    }
+    function onEnd() {
+      if (!dragging) return;
+      dragging = false;
+      thumb.style.marginLeft = '0px';
+      trail.style.width = thumb.clientWidth + 'px';
+      thumb.style.cursor = 'grab';
+    }
+
+    thumb.addEventListener('mousedown',  onStart);
+    thumb.addEventListener('touchstart', onStart, { passive: true });
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('touchmove', onMove, { passive: true });
+    window.addEventListener('mouseup',   onEnd);
+    window.addEventListener('touchend',  onEnd);
+  })();
+</script>
+</body>
+</html>
