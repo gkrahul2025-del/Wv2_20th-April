@@ -2,9 +2,9 @@ const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
-  family: 4, // force IPv4 — Railway does not support IPv6 SMTP
+  port: 587,
+  secure: false,
+  family: 4, // force IPv4 — Railway IPv6 blocked
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_PASS,
