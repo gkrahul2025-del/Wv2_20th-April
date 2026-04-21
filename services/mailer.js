@@ -1,9 +1,11 @@
 const { Resend } = require('resend');
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM = process.env.FROM_EMAIL || 'Shrinkray Studios <onboarding@resend.dev>';
 
 async function sendMail({ to, subject, html }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) { console.warn('[Mailer] RESEND_API_KEY not set — skipping email'); return; }
+  const resend = new Resend(apiKey);
   const { error } = await resend.emails.send({ from: FROM, to, subject, html });
   if (error) throw new Error(error.message);
 }
