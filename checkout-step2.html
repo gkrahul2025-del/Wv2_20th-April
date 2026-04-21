@@ -110,8 +110,8 @@
   }
   .success-pop { animation: success-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards; }
 
-  html, body { overscroll-behavior: none; }
-  body { min-height: max(884px, 100dvh); }
+  html, body { overscroll-behavior: none; overflow-x: hidden; max-width: 100%; }
+  body { min-height: max(884px, 100dvh); width: 100%; }
 
   /* ── Dark glass inputs (same as pg1 code input) ── */
   .field-input {
