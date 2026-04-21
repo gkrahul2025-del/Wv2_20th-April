@@ -1,0 +1,19 @@
+{
+  "name": "shrinkray-studios",
+  "version": "1.0.0",
+  "description": "Shrinkray Studios — Instagram Live order intake server",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "nodemailer": "^8.0.5"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
